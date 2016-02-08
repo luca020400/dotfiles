@@ -1,0 +1,17 @@
+#!/bin/bash
+
+process_file()
+{
+   src=$1
+   dst=$src-mod
+   cp -f -p $src $src-mod
+
+   sed -i "s|/system/bin/linker64\x0|/sbin/linker64\x0\x0\x0\x0\x0\x0\x0|g" $dst
+   sed -i "s|/system/bin/linker\x0|/sbin/linker\x0\x0\x0\x0\x0\x0\x0|g" $dst
+   sed -i "s|/system/bin/sh\x0|/sbin/sh\x0\x0\x0\x0\x0\x0\x0|g" > $dst
+}
+
+
+for lib in $*; do
+   process_file $lib
+done

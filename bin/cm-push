@@ -1,0 +1,19 @@
+#!/bin/bash
+
+repo_name=$(git remote -v | grep CyanogenMod | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
+opt_draft=0
+
+while getopts "d" opt; do
+case "$opt" in
+    d) opt_draft=1 ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ "$opt_draft" -ne 0 ]; then
+    push="drafts"
+else
+    push="for"
+fi
+
+git push ssh://luca020400@review.cyanogenmod.org:29418/CyanogenMod/$repo_name HEAD:refs/$push/$1
