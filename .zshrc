@@ -374,7 +374,8 @@ mktbz() { tar cvjf "${1%%/}.tar.bz2" "${1%%/}/"; }
 zstyle ':completion:*' rehash true
 
 source $HOME/.zsh_custom/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
-source $HOME/.zsh_custom/zsh-history-substring-search.zsh
+source $HOME/.zsh_custom/zsh-history-substring-search/zsh-history-substring-search.zsh
+source $HOME/.zsh_custom/zsh-completions/zsh-completions.plugin.zsh
 
 # bind UP and DOWN arrow keys
 zmodload zsh/terminfo
