@@ -323,12 +323,8 @@ hex() {
 export USE_CCACHE=1
 export EDITOR=mcedit
 export PATH="$HOME/bin:$HOME/.gem/ruby/2.3.0/bin/:/usr/lib/ccache/bin:$PATH"
-export HISTFILESIZE=300000
-export HISTCONTROL=ignoredups
-export HISTSIZE=100000
 export ANDROID_HOME=/home/luca/android/sdk/
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk/
-export OPENGROK_TOMCAT_BASE=/usr/share/tomcat8/
 export PROMPT_COMMAND='history -a'
 
 alias clipboard='xclip -se c'
