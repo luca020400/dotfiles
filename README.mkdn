@@ -11,5 +11,5 @@ luca020400 Dot-Files
 
 ```bash
  cp -R .dotfiles/bin/* $HOME/bin/*
- cp -R .dotfile/.* $HOME/.
+ cp -R .dotfilef/.* $HOME/.
 ```
