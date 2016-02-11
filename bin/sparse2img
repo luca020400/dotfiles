@@ -1,0 +1,5 @@
+#!/bin/bash
+
+simg2img system.img_sparsechunk.* system.img.tmp
+img2ext4 system.img.tmp system.img
+rm -rf system.img.tmp
