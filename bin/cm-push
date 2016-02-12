@@ -2,4 +2,16 @@
 
 repo_name=$(git remote -v | grep CyanogenMod | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
 
-git push ssh://luca020400@review.cyanogenmod.org:29418/CyanogenMod/$repo_name HEAD:refs/for/$1%$2
+while getopts "dt:" opt; do
+    case $opt in
+        d) ref="draft" ;;
+        t) topic="%topic=$OPTARG" ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ -z "$ref" ]; then
+    ref="for"
+fi
+
+git push ssh://luca020400@review.cyanogenmod.org:29418/CyanogenMod/$repo_name HEAD:refs/${ref}/$1${topic}
