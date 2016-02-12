@@ -1,17 +1,45 @@
 #!/bin/bash
 
-repo_name=$(git remote -v | grep CyanogenMod | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
+usage() {
+    echo "Usage:"
+    echo "  cm-push [options] branch"
+    echo
+    echo "  Options:"
+    echo "    -d  Upload change as draft."
+    echo "    -t 'topic' Append topic to change."
+    echo
+    echo "  Example:"
+    echo "    cm-push -d -t test cm-13.0"
+    echo
+    exit 1
+}
 
-while getopts "dt:" opt; do
+while getopts ":dt:" opt; do
     case $opt in
-        d) ref="draft" ;;
+        d) ref="drafts" ;;
         t) topic="%topic=$OPTARG" ;;
+        :)
+          echo "Option -$OPTARG requires an argument"
+          echo
+          usage
+          ;;
+        \?)
+          echo "Invalid option: -$OPTARG"
+          echo
+          usage
+          ;;
     esac
 done
 shift $((OPTIND-1))
 
+if [ "$#" -ne 1 ]; then
+    usage
+fi
+
 if [ -z "$ref" ]; then
     ref="for"
 fi
+
+repo_name=$(git remote -v | grep CyanogenMod | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
 
 git push ssh://luca020400@review.cyanogenmod.org:29418/CyanogenMod/$repo_name HEAD:refs/${ref}/$1${topic}
