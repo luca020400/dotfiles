@@ -329,7 +329,6 @@ export PROMPT_COMMAND='history -a'
 
 alias clipboard='xclip -se c'
 alias nano='mcedit'
-alias mka='LC_ALL=C mka'
 alias venv='. $HOME/android/venv/bin/activate'
 alias pacman='sudo pacman'
 alias wget='wget -c'
