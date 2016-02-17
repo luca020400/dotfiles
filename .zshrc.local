@@ -344,20 +344,54 @@ build() {
 }
 
 extract() {
-    if [ -f $1 ] ; then
-        case $1 in
-            *.tar.bz2) tar xvjf $1    ;;
-            *.tar.gz)  tar xvzf $1    ;;
-            *.bz2)     bunzip2 $1     ;;
-            *.rar)     rar x $1       ;;
-            *.gz)      gunzip $1      ;;
-            *.tar)     tar xvf $1     ;;
-            *.tbz2)    tar xvjf $1    ;;
-            *.tgz)     tar xvzf $1    ;;
-            *.zip)     unzip $1       ;;
-            *.Z)       uncompress $1  ;;
-            *.7z)      7z x $1        ;;
-            *)         echo "don't know how to extract '$1'..." ;;
+    if [[ -f "$1" ]]; then
+        case "$1" in
+            *.tar.lrz)
+                b=$(basename "$1" .tar.lrz)
+                lrztar -d "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.lrz)
+                b=$(basename "$1" .lrz)
+                lrunzip "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.tar.bz2)
+                b=$(basename "$1" .tar.bz2)
+                bsdtar xjf "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.bz2)
+                b=$(basename "$1" .bz2)
+                bunzip2 "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.tar.gz)
+                b=$(basename "$1" .tar.gz)
+                bsdtar xzf "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.gz)
+                b=$(basename "$1" .gz)
+                gunzip "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.tar.xz)
+                b=$(basename "$1" .tar.xz)
+                bsdtar Jxf "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.xz)
+                b=$(basename "$1" .gz)
+                xz -d "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.rar)
+                b=$(basename "$1" .rar)
+                unrar e "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.tar)
+                b=$(basename "$1" .tar)
+                bsdtar xf "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.tbz2)
+                b=$(basename "$1" .tbz2)
+                bsdtar xjf "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.tgz)
+                b=$(basename "$1" .tgz)
+                bsdtar xzf "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.zip)
+                b=$(basename "$1" .zip)
+                unzip "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.Z)
+                b=$(basename "$1" .Z)
+                uncompress "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *.7z)
+                b=$(basename "$1" .7z)
+                7z x "$1" && [[ -d "$b" ]] && cd "$b" ;;
+            *) echo "don't know how to extract '$1'..." && return 1;;
         esac
     fi
 }
