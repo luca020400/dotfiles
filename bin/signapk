@@ -1,0 +1,3 @@
+#!/bin/bash
+
+java -jar $HOME/bin/signapk.jar $HOME/bin/keys/testkey.x509.pem $HOME/bin/keys/testkey.pk8 $1 ${1%.*}-signed.${1##*.}
