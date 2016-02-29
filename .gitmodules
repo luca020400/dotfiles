@@ -1,3 +1,6 @@
+[submodule ".zsh_custom/zsh-autosuggestions"]
+	path = .zsh_custom/zsh-autosuggestions
+	url = git@github.com:zsh-users/zsh-autosuggestions.git
 [submodule ".zsh_custom/zsh-completions"]
 	path = .zsh_custom/zsh-completions
 	url = git@github.com:zsh-users/zsh-completions.git
