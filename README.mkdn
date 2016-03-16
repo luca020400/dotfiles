@@ -10,6 +10,6 @@ luca020400 Dot-Files
 2. Install dot-files
 
 ```bash
- cp -R .dotfiles/bin/* $HOME/bin/*
+ cp -R .dotfiles/bin/* $HOME/bin/.
  cp -R .dotfiles/.* $HOME/.
 ```
