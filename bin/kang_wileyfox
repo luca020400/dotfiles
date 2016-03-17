@@ -142,5 +142,5 @@ EOF
 }
 
 for l in `blobs`; do
-    git checkout msm8916-common/proprietary/$l
+    cp vendor/wileyfox/kipper/proprietary/$l vendor/asus/msm8916-common/proprietary/$l
 done
