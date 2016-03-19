@@ -334,6 +334,7 @@ alias pacman='sudo pacman'
 alias wget='wget -c'
 alias scrot='scrot -c -d 7'
 alias repopick='repopick -g ssh://luca020400@review.cyanogenmod.org:29418'
+alias mms='I_WANT_A_QUAIL_STAR=1 WITHOUT_CHECK_API=true mms'
 
 build() {
     venv
