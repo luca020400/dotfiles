@@ -322,7 +322,7 @@ hex() {
 
 export USE_CCACHE=1
 export EDITOR=mcedit
-export PATH="$HOME/bin:$HOME/.gem/ruby/2.3.0/bin/:/usr/lib/ccache/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.gem/ruby/2.3.0/bin:/usr/lib/ccache/bin:$PATH"
 export ANDROID_HOME=/home/luca/android/sdk/
 export JAVA_HOME=/usr/lib/jvm/java-7-openjdk/
 export PROMPT_COMMAND='history -a'
