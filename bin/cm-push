@@ -17,7 +17,7 @@ usage() {
 
 while getopts ":dr:t:" opt; do
     case $opt in
-        d) ref="drafts" ;;
+        d) [ -z "$ref" ] && ref="drafts" ;;
         r) ref="$OPTARG" ;;
         t) topic="%topic=$OPTARG" ;;
         :)
