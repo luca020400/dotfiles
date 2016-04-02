@@ -6,7 +6,8 @@ usage() {
     echo
     echo "  Options:"
     echo "    -d  Upload change as draft."
-    echo "    -t 'topic' Append topic to change."
+    echo "    -r <ref> Push to specified ref ( will override draft )"
+    echo "    -t <topic> Append topic to change."
     echo
     echo "  Example:"
     echo "    cm-push -d -t test cm-13.0"
@@ -14,9 +15,10 @@ usage() {
     exit 1
 }
 
-while getopts ":dt:" opt; do
+while getopts ":dr:t:" opt; do
     case $opt in
         d) ref="drafts" ;;
+        r) ref="$OPTARG" ;;
         t) topic="%topic=$OPTARG" ;;
         :)
           echo "Option -$OPTARG requires an argument"
