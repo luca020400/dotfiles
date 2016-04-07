@@ -43,5 +43,6 @@ if [ -z "$ref" ]; then
 fi
 
 repo_name=$(git remote -v | grep CyanogenMod | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
+username=$(git config review.review.cyanogenmod.org.username)
 
-git push ssh://luca020400@review.cyanogenmod.org:29418/CyanogenMod/$repo_name HEAD:refs/${ref}/$1${topic}
+git push ssh://${username}@review.cyanogenmod.org:29418/CyanogenMod/${repo_name} HEAD:refs/${ref}/$1${topic}
