@@ -409,13 +409,12 @@ extract() {
 
 zstyle ':completion:*' rehash true
 
-source $HOME/.zsh_custom/zsh-autosuggestions/zsh-autosuggestions.zsh
+source $HOME/.zsh_custom/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
 source $HOME/.zsh_custom/zsh-completions/zsh-completions.plugin.zsh
+source $HOME/.zsh_custom/zsh-syntax-highlighting/zsh-syntax-highlighting.plugin.zsh
 source $HOME/.zsh_custom/zsh-history-substring-search/zsh-history-substring-search.zsh
-source $HOME/.zsh_custom/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
 # bind UP and DOWN arrow keys
 zmodload zsh/terminfo
 bindkey "$terminfo[kcuu1]" history-substring-search-up
 bindkey "$terminfo[kcud1]" history-substring-search-down
-
