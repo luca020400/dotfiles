@@ -345,6 +345,7 @@ build() {
 }
 
 build_ninja() {
+    export USE_NINJA=true
     venv
     . build/envsetup.sh
     breakfast $1
