@@ -329,11 +329,11 @@ export PROMPT_COMMAND='history -a'
 
 alias clipboard='xclip -se c'
 alias nano='mcedit'
-alias venv='. $HOME/android/venv/bin/activate'
+alias venv=". $HOME/android/venv/bin/activate"
 alias pacman='pacaur --color=auto'
 alias wget='wget -c'
-alias scrot='scrot -c -d 7'
-alias repopick='repopick -g ssh://luca020400@review.cyanogenmod.org:29418'
+alias scrot='scrot -c -d 3'
+alias repopick="repopick -g ssh://$(git config review.review.cyanogenmod.org.username)@review.cyanogenmod.org:29418"
 alias mms='I_WANT_A_QUAIL_STAR=1 WITHOUT_CHECK_API=true mms'
 
 build() {
@@ -343,6 +343,16 @@ build() {
     mka clobber
     mka bacon
 }
+
+build_ninja() {
+    venv
+    . build/envsetup.sh
+    breakfast $1
+    $HOME/android/kati/m2n --kati_stats
+    ./ninja.sh clobber
+    ./ninja.sh bacon
+}
+
 
 extract() {
     if [[ -f "$1" ]]; then
@@ -399,7 +409,7 @@ extract() {
 
 zstyle ':completion:*' rehash true
 
-source $HOME/.zsh_custom/zsh-autosuggestions/zsh-autosuggestions.plugin.zsh
+source $HOME/.zsh_custom/zsh-autosuggestions/zsh-autosuggestions.zsh
 source $HOME/.zsh_custom/zsh-completions/zsh-completions.plugin.zsh
 source $HOME/.zsh_custom/zsh-history-substring-search/zsh-history-substring-search.zsh
 source $HOME/.zsh_custom/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
