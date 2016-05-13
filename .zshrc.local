@@ -349,7 +349,7 @@ build_ninja() {
     venv
     . build/envsetup.sh
     breakfast $1
-    $HOME/android/kati/m2n
+    m2n
     mk_timer ./ninja.sh clobber
     mk_timer ./ninja.sh bacon
 }
