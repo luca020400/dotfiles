@@ -335,6 +335,7 @@ alias wget='wget -c'
 alias scrot='scrot -c -d 3'
 alias repopick="repopick -g ssh://$(git config review.review.cyanogenmod.org.username)@review.cyanogenmod.org:29418"
 alias mms='I_WANT_A_QUAIL_STAR=1 WITHOUT_CHECK_API=true mms'
+alias ninjap='dopush ./ninja.sh'
 
 build() {
     venv
@@ -350,10 +351,22 @@ build_ninja() {
     . build/envsetup.sh
     breakfast $1
     m2n
-    mk_timer ./ninja.sh clobber
-    mk_timer ./ninja.sh bacon
+    ./ninja.sh clobber
+    ./ninja.sh bacon
 }
 
+build_chromium() {
+    args='target_os="android" target_cpu="arm" is_debug=false is_component_build=false is_clang=true symbol_level=0 enable_incremental_javac=true enable_nacl=false remove_webcore_debug_symbols=true'
+    venv
+    . ../env.sh
+    export GYP_CHROMIUM_NO_ACTION=1
+    gclient sync --head -R
+    cd src
+    gn gen out/Default --args=$args
+    . build/android/envsetup.sh
+    ninja -C out/Default chrome_public_apk
+    adb install -r out/Default/apks/ChromePublic.apk
+}
 
 extract() {
     if [[ -f "$1" ]]; then
