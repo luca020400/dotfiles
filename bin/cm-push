@@ -6,9 +6,10 @@ usage() {
     echo
     echo "  Options:"
     echo "    -d  Upload change as draft."
-    echo "    -r <ref> Push to specified ref ( will override draft )"
-    echo "    -t <topic> Append topic to change."
     echo "    -f Force push."
+    echo "    -m Bypass review and merge."
+    echo "    -r <ref> Push to specified ref ( will override draft )."
+    echo "    -t <topic> Append topic to change."
     echo
     echo "  Example:"
     echo "    cm-push -d -t test cm-13.0"
@@ -16,11 +17,13 @@ usage() {
     exit 1
 }
 
-while getopts ":dfr:t:" opt; do
+merge=0
+while getopts ":dfmr:t:" opt; do
     case $opt in
-        d) [ -z "$ref" ] && ref="drafts" ;;
+        d) [ -z "$ref" ] && ref="ref/drafts/" ;;
         f) push_args="-f" ;;
-        r) ref="$OPTARG" ;;
+        m) merge=1 ;;
+        r) ref="ref/$OPTARG/" ;;
         t) topic="%topic=$OPTARG" ;;
         :)
           echo "Option -$OPTARG requires an argument"
@@ -41,10 +44,14 @@ if [ "$#" -ne 1 ]; then
 fi
 
 if [ -z "$ref" ]; then
-    ref="for"
+    ref="refs/for/"
+fi
+
+if [ "$merge" -eq 1 ]; then
+    ref=""
 fi
 
 repo_name=$(git remote -v | grep CyanogenMod | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
 username=$(git config review.review.cyanogenmod.org.username)
 
-git push ${push_args} ssh://${username}@review.cyanogenmod.org:29418/CyanogenMod/${repo_name} HEAD:refs/${ref}/$1${topic}
+git push ${push_args} ssh://${username}@review.cyanogenmod.org:29418/CyanogenMod/${repo_name} HEAD:${ref}$1${topic}
