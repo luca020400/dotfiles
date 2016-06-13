@@ -20,10 +20,10 @@ usage() {
 merge=0
 while getopts ":dfmr:t:" opt; do
     case $opt in
-        d) [ -z "$ref" ] && ref="ref/drafts/" ;;
+        d) [ -z "$ref" ] && ref="refs/drafts/" ;;
         f) push_args="-f" ;;
-        m) merge=1 ;;
-        r) ref="ref/$OPTARG/" ;;
+        m) [ -z "$ref" ] && ref="" ;;
+        r) ref="refs/$OPTARG/" ;;
         t) topic="%topic=$OPTARG" ;;
         :)
           echo "Option -$OPTARG requires an argument"
@@ -45,10 +45,6 @@ fi
 
 if [ -z "$ref" ]; then
     ref="refs/for/"
-fi
-
-if [ "$merge" -eq 1 ]; then
-    ref=""
 fi
 
 repo_name=$(git remote -v | grep CyanogenMod | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
