@@ -5,7 +5,8 @@ usage() {
     echo "  cm-push [options] branch"
     echo
     echo "  Options:"
-    echo "    -d  Upload change as draft."
+    echo "    -d Upload change as draft."
+    echo "    -e Update change as edit."
     echo "    -f Force push."
     echo "    -l <label> Assing label."
     echo "    -m Bypass review and merge."
@@ -21,9 +22,9 @@ usage() {
 while getopts ":dl:fmr:t:" opt; do
     case $opt in
         d) [ -z "$ref" ] && ref="refs/drafts/" ;;
-        l) label="%l=$OPTARG" ;;
         e) edit="%edit" ;;
         f) push_args="-f" ;;
+        l) label="%l=$OPTARG" ;;
         m) merge="%submit" ;;
         r) ref="refs/$OPTARG/" ;;
         t) topic="%topic=$OPTARG" ;;
@@ -52,4 +53,4 @@ fi
 repo_name=$(git remote -v | grep CyanogenMod | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
 username=$(git config review.review.cyanogenmod.org.username)
 
-git push ${push_args} ssh://${username}@review.cyanogenmod.org:29418/CyanogenMod/${repo_name} HEAD:${ref}$1${topic}${label}${merge}
+git push ${push_args} ssh://${username}@review.cyanogenmod.org:29418/CyanogenMod/${repo_name} HEAD:${ref}$1${topic}${label}${merge}${edit}
