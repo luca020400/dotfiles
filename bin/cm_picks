@@ -16,3 +16,6 @@ popd
 
 # Base Power key
 $repopick 146186
+
+# ASUS - LPM
+$repopick 149530

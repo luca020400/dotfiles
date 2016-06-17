@@ -102,7 +102,7 @@ def main():
 
     b = Process(target=background, args=(queue, event, args.silent))
     b.start()
-    
+
     pool = Pool(args.jobs, worker_init, [queue])
     pool.map(worker, tags)
 
