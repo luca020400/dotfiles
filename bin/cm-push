@@ -28,7 +28,7 @@ while getopts ":dl:fmr:t:" opt; do
         l) label="%l=$OPTARG" ;;
         m) [ -z "$ref" ] && ref="" ;;
         r) ref="refs/$OPTARG/" ;;
-        s) subit="%submit" ;;
+        s) submit="%submit" ;;
         t) topic="%topic=$OPTARG" ;;
         :)
           echo "Option -$OPTARG requires an argument"
