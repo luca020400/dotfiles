@@ -1,0 +1,54 @@
+#!/usr/bin/env zsh
+
+chromium_version="51.0.2704.106"
+
+. $HOME/android/venv/bin/activate
+. ../env.sh
+export GYP_CHROMIUM_NO_ACTION=1
+gclient sync --with_branch_heads -R -r $chromium_version
+cd src
+
+# Replace webview icon
+mkdir -p android_webview/apk/java/res/drawable-xxxhdpi
+cp chrome/android/java/res_chromium/mipmap-mdpi/app_icon.png android_webview/apk/java/res/drawable-mdpi/icon_webview.png
+cp chrome/android/java/res_chromium/mipmap-hdpi/app_icon.png android_webview/apk/java/res/drawable-hdpi/icon_webview.png
+cp chrome/android/java/res_chromium/mipmap-xhdpi/app_icon.png android_webview/apk/java/res/drawable-xhdpi/icon_webview.png
+cp chrome/android/java/res_chromium/mipmap-xxhdpi/app_icon.png android_webview/apk/java/res/drawable-xxhdpi/icon_webview.png
+cp chrome/android/java/res_chromium/mipmap-xxxhdpi/app_icon.png android_webview/apk/java/res/drawable-xxxhdpi/icon_webview.png
+
+# Build args
+args='target_os="android" is_official_build=true is_debug=false is_component_build=false symbol_level=0 enable_nacl=false remove_webcore_debug_symbols=true'
+args+=' android_default_version_name="'$chromium_version'"'
+if [ "$USE_CCACHE" -eq 1 ]; then
+    export CCACHE_CPP2=yes
+    export CCACHE_SLOPPINESS=time_macros
+    args+=' cc_wrapper="ccache"'
+fi
+arm_args=$args' target_cpu="arm" is_clang=true'
+arm64_args=$args' target_cpu="arm64" is_clang=false'
+x86_args=$args' target_cpu="x86" is_clang=true'
+x64_args=$args' target_cpu="x64" is_clang=false'
+
+# Setup environment
+rm -rf out
+. build/android/envsetup.sh
+
+# arm
+gn gen out/Default_arm --args=$arm_args
+ninja -C out/Default_arm system_webview_apk
+cp out/Default_arm/apks/SystemWebView.apk $HOME/android/cm/external/chromium-webview/prebuilt/arm/webview.apk
+
+# arm64
+gn gen out/Default_arm64 --args=$arm64_args
+ninja -C out/Default_arm64 system_webview_apk
+python2 android_webview/tools/apk_merger.py --shared_library libwebviewchromium.so --out_apk $HOME/android/cm/external/chromium-webview/prebuilt/arm64/webview.apk --zipalign_path third_party/android_tools/sdk/build-tools/23.0.1/zipalign --keystore_path build/android/ant/chromium-debug.keystore --key_name chromiumdebugkey --key_password chromium --apk_32bit out/Default_arm/apks/SystemWebView.apk --apk_64bit out/Default_arm64/apks/SystemWebView.apk
+
+# x86
+gn gen out/Default_x86 --args=$x86_args
+ninja -C out/Default_x86 system_webview_apk
+cp out/Default_x86/apks/SystemWebView.apk $HOME/android/cm/external/chromium-webview/prebuilt/x86/webview.apk
+
+# x64
+gn gen out/Default_x64 --args=$x64_args
+ninja -C out/Default_x64 system_webview_apk
+python2 android_webview/tools/apk_merger.py --shared_library libwebviewchromium.so --out_apk $HOME/android/cm/external/chromium-webview/prebuilt/x86_64/webview.apk --zipalign_path third_party/android_tools/sdk/build-tools/23.0.1/zipalign --keystore_path build/android/ant/chromium-debug.keystore --key_name chromiumdebugkey --key_password chromium --apk_32bit out/Default_x86/apks/SystemWebView.apk --apk_64bit out/Default_x64/apks/SystemWebView.apk
