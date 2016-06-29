@@ -1,0 +1,52 @@
+#!/bin/bash
+
+if [[ -f "$1" ]]; then
+    case "$1" in
+        *.tar.lrz)
+            b=$(basename "$1" .tar.lrz)
+            lrztar -d "$1" ;;
+        *.lrz)
+            b=$(basename "$1" .lrz)
+            lrunzip "$1" ;;
+        *.tar.bz2)
+            b=$(basename "$1" .tar.bz2)
+            bsdtar xjf "$1" ;;
+        *.bz2)
+            b=$(basename "$1" .bz2)
+            bunzip2 "$1" ;;
+        *.tar.gz)
+            b=$(basename "$1" .tar.gz)
+            bsdtar xzf "$1" ;;
+        *.gz)
+            b=$(basename "$1" .gz)
+            gunzip "$1" ;;
+        *.tar.xz)
+            b=$(basename "$1" .tar.xz)
+            bsdtar Jxf "$1" ;;
+        *.xz)
+            b=$(basename "$1" .gz)
+            xz -d "$1" ;;
+        *.rar)
+            b=$(basename "$1" .rar)
+            unrar e "$1" ;;
+        *.tar)
+            b=$(basename "$1" .tar)
+            bsdtar xf "$1" ;;
+        *.tbz2)
+            b=$(basename "$1" .tbz2)
+            bsdtar xjf "$1" ;;
+        *.tgz)
+            b=$(basename "$1" .tgz)
+            bsdtar xzf "$1" ;;
+        *.zip)
+            b=$(basename "$1" .zip)
+            unzip "$1" ;;
+        *.Z)
+            b=$(basename "$1" .Z)
+            uncompress "$1" ;;
+        *.7z)
+            b=$(basename "$1" .7z)
+            7z x "$1" ;;
+        *) echo "don't know how to extract '$1'..." && return 1;;
+    esac
+fi

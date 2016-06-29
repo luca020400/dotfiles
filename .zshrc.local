@@ -87,7 +87,7 @@ bindkey -M isearch . self-insert
 ## some popular options ##
 
 ## add `|' to output redirections in the history
-setopt histallowclobber
+#setopt histallowclobber
 
 ## try to avoid the 'zsh: no matches found...'
 setopt nonomatch
@@ -324,13 +324,13 @@ export USE_CCACHE=1
 export EDITOR=mcedit
 export PATH="$HOME/bin:$HOME/.gem/ruby/2.3.0/bin:/usr/lib/ccache/bin:$PATH"
 export ANDROID_HOME=/home/luca/android/sdk/
-export JAVA_HOME=/usr/lib/jvm/java-7-openjdk/
+export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk/
 export PROMPT_COMMAND='history -a'
 
 alias clipboard='xclip -se c'
 alias nano='mcedit'
 alias venv=". $HOME/android/venv/bin/activate"
-alias pacman='pacaur --color=auto'
+alias dnf='sudo dnf'
 alias wget='wget -c'
 alias scrot='scrot -c -d 3'
 alias repopick="repopick -g ssh://$(git config review.review.cyanogenmod.org.username)@review.cyanogenmod.org:29418"
@@ -338,7 +338,6 @@ alias mms='I_WANT_A_QUAIL_STAR=1 WITHOUT_CHECK_API=true mms'
 alias ninjap='dopush ./ninja.sh'
 
 build() {
-    venv
     . build/envsetup.sh
     breakfast $1
     mka clobber
@@ -347,78 +346,11 @@ build() {
 
 build_ninja() {
     export USE_NINJA=true
-    venv
     . build/envsetup.sh
     breakfast $1
     m2n
     ./ninja.sh clobber
     ./ninja.sh bacon
-}
-
-build_chromium() {
-    args='target_os="android" target_cpu="arm" is_debug=false is_component_build=false is_clang=true symbol_level=0 enable_incremental_javac=true enable_nacl=false remove_webcore_debug_symbols=true'
-    venv
-    . ../env.sh
-    export GYP_CHROMIUM_NO_ACTION=1
-    gclient sync --head -R
-    cd src
-    gn gen out/Default --args=$args
-    . build/android/envsetup.sh
-    ninja -C out/Default chrome_public_apk
-    adb install -r out/Default/apks/ChromePublic.apk
-}
-
-extract() {
-    if [[ -f "$1" ]]; then
-        case "$1" in
-            *.tar.lrz)
-                b=$(basename "$1" .tar.lrz)
-                lrztar -d "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.lrz)
-                b=$(basename "$1" .lrz)
-                lrunzip "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.tar.bz2)
-                b=$(basename "$1" .tar.bz2)
-                bsdtar xjf "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.bz2)
-                b=$(basename "$1" .bz2)
-                bunzip2 "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.tar.gz)
-                b=$(basename "$1" .tar.gz)
-                bsdtar xzf "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.gz)
-                b=$(basename "$1" .gz)
-                gunzip "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.tar.xz)
-                b=$(basename "$1" .tar.xz)
-                bsdtar Jxf "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.xz)
-                b=$(basename "$1" .gz)
-                xz -d "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.rar)
-                b=$(basename "$1" .rar)
-                unrar e "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.tar)
-                b=$(basename "$1" .tar)
-                bsdtar xf "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.tbz2)
-                b=$(basename "$1" .tbz2)
-                bsdtar xjf "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.tgz)
-                b=$(basename "$1" .tgz)
-                bsdtar xzf "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.zip)
-                b=$(basename "$1" .zip)
-                unzip "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.Z)
-                b=$(basename "$1" .Z)
-                uncompress "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *.7z)
-                b=$(basename "$1" .7z)
-                7z x "$1" && [[ -d "$b" ]] && cd "$b" ;;
-            *) echo "don't know how to extract '$1'..." && return 1;;
-        esac
-    fi
 }
 
 zstyle ':completion:*' rehash true
@@ -432,3 +364,6 @@ source $HOME/.zsh_custom/zsh-history-substring-search/zsh-history-substring-sear
 zmodload zsh/terminfo
 bindkey "$terminfo[kcuu1]" history-substring-search-up
 bindkey "$terminfo[kcud1]" history-substring-search-down
+
+# Replace android ccache
+ln -sf /usr/bin/ccache $HOME/android/cm/prebuilts/misc/linux-x86/ccache/ccache
