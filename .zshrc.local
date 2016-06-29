@@ -44,11 +44,11 @@ zstyle ':prompt:grml:left:setup' items rc virtual-env change-root user at host p
 #bindkey -M menuselect 'j' vi-down-line-or-history # bottom
 
 # set command prediction from history, see 'man 1 zshcontrib'
-is4 && zrcautoload predict-on && \
-zle -N predict-on         && \
-zle -N predict-off        && \
-bindkey "^X^Z" predict-on && \
-bindkey "^Z" predict-off
+#is4 && zrcautoload predict-on && \
+#zle -N predict-on         && \
+#zle -N predict-off        && \
+#bindkey "^X^Z" predict-on && \
+#bindkey "^Z" predict-off
 
 ## press ctrl-q to quote line:
 #mquote () {
@@ -90,7 +90,7 @@ bindkey -M isearch . self-insert
 #setopt histallowclobber
 
 ## try to avoid the 'zsh: no matches found...'
-setopt nonomatch
+#setopt nonomatch
 
 ## warning if file exists ('cat /dev/null > ~/.zshrc')
 #setopt NO_clobber

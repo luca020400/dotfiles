@@ -450,36 +450,35 @@ fi
 check_com() {
     emulate -L zsh
     local -i comonly gatoo
+    comonly=0
+    gatoo=0
 
     if [[ $1 == '-c' ]] ; then
-        (( comonly = 1 ))
-        shift
+        comonly=1
+        shift 1
     elif [[ $1 == '-g' ]] ; then
-        (( gatoo = 1 ))
-    else
-        (( comonly = 0 ))
-        (( gatoo = 0 ))
+        gatoo=1
+        shift 1
     fi
 
     if (( ${#argv} != 1 )) ; then
-        printf 'usage: check_com [-c] <command>\n' >&2
+        printf 'usage: check_com [-c|-g] <command>\n' >&2
         return 1
     fi
 
     if (( comonly > 0 )) ; then
-        [[ -n ${commands[$1]}  ]] && return 0
+        (( ${+commands[$1]}  )) && return 0
         return 1
     fi
 
-    if   [[ -n ${commands[$1]}    ]] \
-      || [[ -n ${functions[$1]}   ]] \
-      || [[ -n ${aliases[$1]}     ]] \
-      || [[ -n ${reswords[(r)$1]} ]] ; then
-
+    if     (( ${+commands[$1]}    )) \
+        || (( ${+functions[$1]}   )) \
+        || (( ${+aliases[$1]}     )) \
+        || (( ${+reswords[(r)$1]} )) ; then
         return 0
     fi
 
-    if (( gatoo > 0 )) && [[ -n ${galiases[$1]} ]] ; then
+    if (( gatoo > 0 )) && (( ${+galiases[$1]} )) ; then
         return 0
     fi
 
@@ -1614,6 +1613,7 @@ if zstyle -T ':grml:chpwd:dirstack' enable; then
     }
 
     chpwd() {
+        (( ZSH_SUBSHELL )) && return
         (( $DIRSTACKSIZE <= 0 )) && return
         [[ -z $DIRSTACKFILE ]] && return
         grml_dirstack_filter $PWD && return
@@ -2360,9 +2360,7 @@ function prompt_grml_precmd_worker () {
 
 grml_prompt_fallback() {
     setopt prompt_subst
-    precmd() {
-        (( ${+functions[vcs_info]} )) && vcs_info
-    }
+    local p0 p1
 
     p0="${RED}%(?..%? )${WHITE}${debian_chroot:+($debian_chroot)}"
     p1="${BLUE}%n${NO_COLOR}@%m %40<...<%B%~%b%<< "'${vcs_info_msg_0_}'"%# "
@@ -2371,7 +2369,6 @@ grml_prompt_fallback() {
     else
         PROMPT="${RED}${p0}${BLUE}${p1}"
     fi
-    unset p0 p1
 }
 
 if zrcautoload promptinit && promptinit 2>/dev/null ; then
@@ -2384,6 +2381,7 @@ if zrcautoload promptinit && promptinit 2>/dev/null ; then
 else
     print 'Notice: no promptinit available :('
     grml_prompt_fallback
+    precmd() { (( ${+functions[vcs_info]} )) && vcs_info; }
 fi
 
 if is437; then
@@ -2416,6 +2414,7 @@ if is437; then
     fi
 else
     grml_prompt_fallback
+    precmd() { (( ${+functions[vcs_info]} )) && vcs_info; }
 fi
 
 # Terminal-title wizardry
