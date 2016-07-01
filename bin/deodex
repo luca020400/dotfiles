@@ -12,7 +12,7 @@ else
 fi
 
 if [[ ! -d framework/$device_arch/odex && ! -d framework/$device_arch/dex ]]; then
-    oat2dex boot framework/$device_arch
+    oat2dex boot framework/$device_arch/boot.oat
 fi
 
 for app in $@; do
