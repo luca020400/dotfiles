@@ -1,7 +1,7 @@
 #!/bin/bash
 
-if [ -z $1 ]; then
-    echo "You have to specify the app to deodex"
+if [ "$#" -lt 1 ]; then
+    echo "You have to specify at least one app to deodex"
     exit 1
 fi
 
@@ -11,12 +11,20 @@ else
     device_arch=arm
 fi
 
-oat2dex boot framework/$device_arch
+if [[ ! -d framework/$device_arch/odex && ! -d framework/$device_arch/dex ]]; then
+    oat2dex boot framework/$device_arch
+fi
 
-app_dir=$(find * -type d -name "$1")
+for app in $@; do
+    app_dir=$(find * -type d -name "$app")
 
-oat2dex $app_dir/oat/$device_arch/$1.odex framework/$device_arch/odex
-mv $app_dir/oat/$device_arch/$1.dex $app_dir/oat/$device_arch/classes.dex
-zip -gjq $app_dir/$1.apk $app_dir/oat/$device_arch/classes.dex
+    if [ -f $app_dir/oat/$device_arch/$app.odex ]; then
+        oat2dex $app_dir/oat/$device_arch/$app.odex framework/$device_arch/odex
+        mv $app_dir/oat/$device_arch/$app.dex $app_dir/oat/$device_arch/classes.dex
+        zip -gjq $app_dir/$app.apk $app_dir/oat/$device_arch/classes.dex
 
-echo "Deodexed apk: $app_dir/$1.apk"
+        echo "Deodexed apk: $app_dir/$app.apk"
+    else
+        echo "$app_dir/$app.apk is already deodexed"
+    fi
+done
