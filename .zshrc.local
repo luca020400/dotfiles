@@ -324,13 +324,13 @@ export USE_CCACHE=1
 export EDITOR=mcedit
 export PATH="$HOME/bin:$HOME/.gem/ruby/2.3.0/bin:/usr/lib/ccache/bin:$PATH"
 export ANDROID_HOME=/home/luca/android/sdk/
-export JAVA_HOME=/usr/lib/jvm/java-1.7.0-openjdk/
+export JAVA_HOME=/usr/lib/jvm/java-7-openjdk/
 export PROMPT_COMMAND='history -a'
 
 alias clipboard='xclip -se c'
 alias nano='mcedit'
 alias venv=". $HOME/android/venv/bin/activate"
-alias dnf='sudo dnf'
+alias pacman='pacaur --color=auto'
 alias wget='wget -c'
 alias scrot='scrot -c -d 3'
 alias repopick="repopick -g ssh://$(git config review.review.cyanogenmod.org.username)@review.cyanogenmod.org:29418"
@@ -338,6 +338,7 @@ alias mms='I_WANT_A_QUAIL_STAR=1 WITHOUT_CHECK_API=true mms'
 alias ninjap='dopush ./ninja.sh'
 
 build() {
+    venv
     . build/envsetup.sh
     breakfast $1
     mka clobber
@@ -345,6 +346,7 @@ build() {
 }
 
 build_ninja() {
+    venv
     export USE_NINJA=true
     . build/envsetup.sh
     breakfast $1
