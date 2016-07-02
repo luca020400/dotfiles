@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-chromium_version="51.0.2704.106"
+chromium_version="52.0.2743.62"
 
 . $HOME/android/venv/bin/activate
 . ../env.sh
@@ -17,17 +17,17 @@ cp chrome/android/java/res_chromium/mipmap-xxhdpi/app_icon.png android_webview/a
 cp chrome/android/java/res_chromium/mipmap-xxxhdpi/app_icon.png android_webview/apk/java/res/drawable-xxxhdpi/icon_webview.png
 
 # Build args
-args='target_os="android" is_official_build=true is_debug=false is_component_build=false symbol_level=0 enable_nacl=false remove_webcore_debug_symbols=true'
+args='target_os="android" is_official_build=true is_debug=false is_component_build=false symbol_level=0 enable_nacl=false remove_webcore_debug_symbols=true is_clang=true'
 args+=' android_default_version_name="'$chromium_version'"'
 if [ "$USE_CCACHE" -eq 1 ]; then
     export CCACHE_CPP2=yes
     export CCACHE_SLOPPINESS=time_macros
     args+=' cc_wrapper="ccache"'
 fi
-arm_args=$args' target_cpu="arm" is_clang=true'
-arm64_args=$args' target_cpu="arm64" is_clang=false'
-x86_args=$args' target_cpu="x86" is_clang=true'
-x64_args=$args' target_cpu="x64" is_clang=false'
+arm_args=$args' target_cpu="arm"'
+arm64_args=$args' target_cpu="arm64"'
+x86_args=$args' target_cpu="x86"'
+x64_args=$args' target_cpu="x64"'
 
 # Setup environment
 rm -rf out

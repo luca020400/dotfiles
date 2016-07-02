@@ -13,6 +13,3 @@ $repopick 142668 142669 142670 142677 143993 143994 144007
 pushd cts
 gitam https://github.com/CyanogenMod/android_cts/commit/e9ecb041ac2a51e8e9cc9e40779584e82592ac75
 popd
-
-# ASUS - LPM
-$repopick 149530
