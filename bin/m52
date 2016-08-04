@@ -1,18 +1,13 @@
 #!/usr/bin/env zsh
 
-chromium_version="m52"
-channel="cm"
-
 . $HOME/android/venv/bin/activate
 . ../env.sh
 export GYP_CHROMIUM_NO_ACTION=1
-gclient sync --with_branch_heads -R -r $chromium_version
+yes | gclient sync --with_branch_heads -R -v -r refs/remotes/origin/m52
 cd src
 
 # Build args
 args='target_os="android" is_official_build=true is_debug=false is_component_build=false symbol_level=0 enable_nacl=false remove_webcore_debug_symbols=true'
-args+=' android_default_version_name="'$chromium_version'"'
-args+=' swe_channels="'$channel'"'
 if [ "$USE_CCACHE" -eq 1 ]; then
     export CCACHE_CPP2=yes
     export CCACHE_SLOPPINESS=time_macros

@@ -1,11 +1,110 @@
 #!/usr/bin/env zsh
 
-chromium_version="52.0.2743.62"
+chromium_version="52.0.2743.90"
+clean=0
+supported_arch=(arm arm64 x86 x64)
 
+usage() {
+    echo "Usage:"
+    echo "  build_webview [ options ]"
+    echo
+    echo "  Options:"
+    echo "    -a <arch> Build specified arch"
+    echo "    -c Clean"
+    echo "    -h Show this message"
+    echo "    -r <release> Specify chromium release"
+    echo
+    echo "  Example:"
+    echo "    build_webview -c -r $chromium_version"
+    echo
+    exit 1
+}
+
+build_arm() {
+    gn gen out/Default_arm --args=$arm_args
+    ninja -C out/Default_arm system_webview_apk
+    if [ "$?" -eq 0 ]; then
+        cp out/Default_arm/apks/SystemWebView.apk $HOME/android/cm/external/chromium-webview/prebuilt/arm/webview.apk
+    fi
+}
+
+build_arm64() {
+    build_arm
+    gn gen out/Default_arm64 --args=$arm64_args
+    ninja -C out/Default_arm64 system_webview_apk
+    if [ "$?" -eq 0 ]; then
+        if [ -f out/Default_arm/apks/SystemWebView.apk ]; then
+            python android_webview/tools/apk_merger.py --shared_library libwebviewchromium.so --out_apk $HOME/android/cm/external/chromium-webview/prebuilt/arm64/webview.apk --zipalign_path third_party/android_tools/sdk/build-tools/23.0.1/zipalign --keystore_path build/android/ant/chromium-debug.keystore --key_name chromiumdebugkey --key_password chromium --apk_32bit out/Default_arm/apks/SystemWebView.apk --apk_64bit out/Default_arm64/apks/SystemWebView.apk
+        fi
+    fi
+}
+
+build_x86() {
+    gn gen out/Default_x86 --args=$x86_args
+    ninja -C out/Default_x86 system_webview_apk
+    if [ "$?" -eq 0 ]; then
+        cp out/Default_x86/apks/SystemWebView.apk $HOME/android/cm/external/chromium-webview/prebuilt/x86/webview.apk
+    fi
+}
+
+build_x64() {
+    build_x86
+    gn gen out/Default_x64 --args=$x64_args
+    ninja -C out/Default_x64 system_webview_apk
+    if [ "$?" -eq 0 ]; then
+        if [ -f out/Default_x86/apks/SystemWebView.apk ]; then
+            python android_webview/tools/apk_merger.py --shared_library libwebviewchromium.so --out_apk $HOME/android/cm/external/chromium-webview/prebuilt/x86_64/webview.apk --zipalign_path third_party/android_tools/sdk/build-tools/23.0.1/zipalign --keystore_path build/android/ant/chromium-debug.keystore --key_name chromiumdebugkey --key_password chromium --apk_32bit out/Default_x86/apks/SystemWebView.apk --apk_64bit out/Default_x64/apks/SystemWebView.apk
+        fi
+    fi
+}
+
+while getopts ":a:chr:" opt; do
+    case $opt in
+        a) for arch in ${supported_arch[@]}; do
+               [ "$OPTARG" '==' "$arch" ] && build_arch="$OPTARG" || ((arch_try++))
+           done
+           if [ $arch_try -eq ${#supported_arch[@]} ]; then
+               echo "Unsupported ARCH: $OPTARG"
+               echo "Supported ARCHs: ${supported_arch[@]}"
+               exit 1
+           fi
+           ;;
+        c) clean=1 ;;
+        h) usage ;;
+        r) chromium_version="$OPTARG" ;;
+        :)
+          echo "Option -$OPTARG requires an argument"
+          echo
+          usage
+          ;;
+        \?)
+          echo "Invalid option: -$OPTARG"
+          echo
+          usage
+          ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# Add depot_tools to PATH
+if [ ! -d depot_tools ]; then
+    git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
+fi
+export PATH="$(pwd -P)/depot_tools:$PATH"
+
+# Switch to python2
 . $HOME/android/venv/bin/activate
-. ../env.sh
+
+# Sync chromium
 export GYP_CHROMIUM_NO_ACTION=1
-gclient sync --with_branch_heads -R -r $chromium_version
+
+if [ ! -d src ]; then
+    fetch --nohooks android
+fi
+
+find src -name index.lock -delete
+[ $clean -eq 1 ] && gclient recurse git clean -fdx .
+yes | gclient sync --with_branch_heads -R -r $chromium_version
 cd src
 
 # Replace webview icon
@@ -17,38 +116,26 @@ cp chrome/android/java/res_chromium/mipmap-xxhdpi/app_icon.png android_webview/a
 cp chrome/android/java/res_chromium/mipmap-xxxhdpi/app_icon.png android_webview/apk/java/res/drawable-xxxhdpi/icon_webview.png
 
 # Build args
-args='target_os="android" is_official_build=true is_debug=false is_component_build=false symbol_level=0 enable_nacl=false remove_webcore_debug_symbols=true is_clang=true'
+args+='target_os="android" is_official_build=true is_debug=false is_component_build=false symbol_level=0 enable_nacl=false remove_webcore_debug_symbols=true'
 args+=' android_default_version_name="'$chromium_version'"'
 if [ "$USE_CCACHE" -eq 1 ]; then
     export CCACHE_CPP2=yes
     export CCACHE_SLOPPINESS=time_macros
     args+=' cc_wrapper="ccache"'
 fi
-arm_args=$args' target_cpu="arm"'
-arm64_args=$args' target_cpu="arm64"'
-x86_args=$args' target_cpu="x86"'
-x64_args=$args' target_cpu="x64"'
+arm_args=$args' target_cpu="arm" is_clang=false'
+arm64_args=$args' target_cpu="arm64" is_clang=false'
+x86_args=$args' target_cpu="x86" is_clang=false'
+x64_args=$args' target_cpu="x64" is_clang=false'
 
 # Setup environment
 rm -rf out
 . build/android/envsetup.sh
 
-# arm
-gn gen out/Default_arm --args=$arm_args
-ninja -C out/Default_arm system_webview_apk
-cp out/Default_arm/apks/SystemWebView.apk $HOME/android/cm/external/chromium-webview/prebuilt/arm/webview.apk
-
-# arm64
-gn gen out/Default_arm64 --args=$arm64_args
-ninja -C out/Default_arm64 system_webview_apk
-python2 android_webview/tools/apk_merger.py --shared_library libwebviewchromium.so --out_apk $HOME/android/cm/external/chromium-webview/prebuilt/arm64/webview.apk --zipalign_path third_party/android_tools/sdk/build-tools/23.0.1/zipalign --keystore_path build/android/ant/chromium-debug.keystore --key_name chromiumdebugkey --key_password chromium --apk_32bit out/Default_arm/apks/SystemWebView.apk --apk_64bit out/Default_arm64/apks/SystemWebView.apk
-
-# x86
-gn gen out/Default_x86 --args=$x86_args
-ninja -C out/Default_x86 system_webview_apk
-cp out/Default_x86/apks/SystemWebView.apk $HOME/android/cm/external/chromium-webview/prebuilt/x86/webview.apk
-
-# x64
-gn gen out/Default_x64 --args=$x64_args
-ninja -C out/Default_x64 system_webview_apk
-python2 android_webview/tools/apk_merger.py --shared_library libwebviewchromium.so --out_apk $HOME/android/cm/external/chromium-webview/prebuilt/x86_64/webview.apk --zipalign_path third_party/android_tools/sdk/build-tools/23.0.1/zipalign --keystore_path build/android/ant/chromium-debug.keystore --key_name chromiumdebugkey --key_password chromium --apk_32bit out/Default_x86/apks/SystemWebView.apk --apk_64bit out/Default_x64/apks/SystemWebView.apk
+# Check target and build
+if [ -n "$build_arch" ]; then
+    build_$build_arch
+else
+    build_arm64 # arm64 build includes arm
+    build_x64   # x64 build includes x86
+fi

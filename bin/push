@@ -1,0 +1,6 @@
+#!/bin/bash
+
+adb wait-for-device root && adb wait-for-device remount
+for blob in $@; do
+    adb push $blob /system/$blob
+done

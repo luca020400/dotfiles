@@ -5,11 +5,24 @@ repopick="repopick -g ssh://luca020400@review.cyanogenmod.org:29418"
 # Build Targets
 $repopick 144070 144071
 
-# Qcom Init
-$repopick 144008
-
 # Ninja Build
 $repopick 142668 142669 142670 142677 143993 143994 144007
 pushd cts
 gitam https://github.com/CyanogenMod/android_cts/commit/e9ecb041ac2a51e8e9cc9e40779584e82592ac75
 popd
+
+# CLANG - MSM8916-MSM8953
+$repopick -t clang-8916
+$repopick 154385
+
+# Dexopt Dialog
+$repopick -t boot-dexopt
+
+# SDCardfs
+#$repopick 154380
+
+# Extract Utils
+$repopick 153315 153689
+
+# August Security
+$repopick 154900 154901 154902 154903

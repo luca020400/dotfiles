@@ -322,10 +322,12 @@ hex() {
 
 export USE_CCACHE=1
 export EDITOR=mcedit
-export PATH="$HOME/bin:$HOME/.gem/ruby/2.3.0/bin:/usr/lib/ccache/bin:$PATH"
+export PATH="$HOME/bin:$HOME/android/sdk/build-tools/24.0.1:$HOME/.gem/ruby/2.3.0/bin:/usr/lib/ccache/bin:$PATH"
 export ANDROID_HOME=/home/luca/android/sdk/
-export JAVA_HOME=/usr/lib/jvm/java-7-openjdk/
+export ANDROID_NDK_HOME=/home/luca/android/ndk
 export PROMPT_COMMAND='history -a'
+export FULLY_DEODEXED=1
+export EXPERIMENTAL_USE_JAVA8=true
 
 alias clipboard='xclip -se c'
 alias nano='mcedit'
@@ -345,9 +347,17 @@ build() {
     mka bacon
 }
 
+build_m2n() {
+    venv
+    . build/envsetup.sh
+    breakfast $1
+    m2n
+    mka clobber
+    mka bacon
+}
+
 build_ninja() {
     venv
-    export USE_NINJA=true
     . build/envsetup.sh
     breakfast $1
     m2n
