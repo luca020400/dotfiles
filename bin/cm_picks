@@ -11,8 +11,7 @@ pushd cts
 gitam https://github.com/CyanogenMod/android_cts/commit/e9ecb041ac2a51e8e9cc9e40779584e82592ac75
 popd
 
-# CLANG - MSM8916-MSM8953
-$repopick -t clang-8916
+# CLANG - MSM8953
 $repopick 154385
 
 # Dexopt Dialog
@@ -24,5 +23,5 @@ $repopick -t boot-dexopt
 # Extract Utils
 $repopick 153315 153689
 
-# August Security
-$repopick 154900 154901 154902 154903
+# Bionic - libm
+$repopick 154691 154692
