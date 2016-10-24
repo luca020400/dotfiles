@@ -1,0 +1,92 @@
+#!/usr/bin/env zsh
+
+chromium_version="55.0.2851.2"
+clean=0
+gsync=0
+
+usage() {
+    echo "Usage:"
+    echo "  build_swe [ options ]"
+    echo
+    echo "  Options:"
+    echo "    -c Clean"
+    echo "    -h Show this message"
+    echo "    -r <release> Specify chromium release"
+    echo "    -s Sync"
+    echo
+    echo "  Example:"
+    echo "    build_chromium -c -s -r $chromium_version"
+    echo
+    exit 1
+}
+
+while getopts ":chr:s" opt; do
+    case $opt in
+        c) clean=1 ;;
+        h) usage ;;
+        r) caf_version="$OPTARG" ;;
+        s) gsync=1 ;;
+        :)
+          echo "Option -$OPTARG requires an argument"
+          echo
+          usage
+          ;;
+        \?)
+          echo "Invalid option: -$OPTARG"
+          echo
+          usage
+          ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# Add depot_tools to PATH
+if [ ! -d depot_tools ]; then
+    git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git --depth 1
+fi
+export PATH="$(pwd -P)/depot_tools:$PATH"
+
+# Switch to python2
+. $HOME/android/venv/bin/activate
+
+# Sync chromium
+export GYP_CHROMIUM_NO_ACTION=1
+[ $gsync -eq 1 ] && yes | gclient sync --with_branch_heads -R -r tags/$chromium_version
+cd src
+
+# Patch
+git checkout tags/$chromium_version chrome/browser/resources/safe_browsing/gen_file_type_proto.py
+cat <<EOF | patch -p1
+diff --git chrome/browser/resources/safe_browsing/gen_file_type_proto.py chrome/browser/resources/safe_browsing/gen_file_type_proto.py
+index be43adc..4d75fdf 100755
+--- a/chrome/browser/resources/safe_browsing/gen_file_type_proto.py
++++ b/chrome/browser/resources/safe_browsing/gen_file_type_proto.py
+@@ -210,7 +210,7 @@ def main():
+ 
+   if opts.wrap:
+     # Run this script again with different args to the interpreter.
+-    command = [sys.executable, '-S', '-s', sys.argv[0]]
++    command = [sys.executable, '-s', sys.argv[0]]
+     if opts.type is not None:
+       command += ['-t', opts.type]
+     if opts.all:
+EOF
+
+# Build args
+args+='target_os="android" is_debug=false is_official_build=true is_chrome_branded=false use_official_google_api_keys=false'
+args+=' exclude_unwind_tables=true enable_resource_whitelist_generation=true ffmpeg_branding="Chrome" proprietary_codecs=true'
+args+=' enable_remoting=true android_default_version_name="'$chromium_version'"'
+if [ "$USE_CCACHE" -eq 1 ]; then
+    export CCACHE_CPP2=yes
+    export CCACHE_SLOPPINESS=time_macros
+    args+=' cc_wrapper="ccache"'
+fi
+args+=' target_cpu="arm" is_clang=true'
+
+# Setup environment
+[ "$clean" -eq 1 ] && rm -rf out
+. build/android/envsetup.sh
+
+# Build
+gn gen out/Default --args=$args
+ninja -C out/Default chrome_public_apk
