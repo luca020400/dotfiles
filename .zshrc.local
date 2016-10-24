@@ -378,6 +378,3 @@ source $HOME/.zsh_custom/zsh-history-substring-search/zsh-history-substring-sear
 zmodload zsh/terminfo
 bindkey "$terminfo[kcuu1]" history-substring-search-up
 bindkey "$terminfo[kcud1]" history-substring-search-down
-
-# Replace android ccache
-ln -sf /usr/bin/ccache $HOME/android/cm/prebuilts/misc/linux-x86/ccache/ccache
