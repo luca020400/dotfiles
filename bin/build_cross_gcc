@@ -12,20 +12,22 @@ trap 'echo FAILED COMMAND: $previous_command' EXIT
 # See: http://preshing.com/20141119/how-to-build-a-gcc-cross-compiler
 #-------------------------------------------------------------------------------------------
 
-INSTALL_PATH=`pwd -P`/out/6.1.0
 TARGET=aarch64-linux
 LINUX_ARCH=arm64
 CONFIGURATION_OPTIONS="--disable-multilib"
 PARALLEL_MAKE=-j6
-BINUTILS_VERSION=binutils-2.26
-GCC_VERSION=gcc-6.1.0
-LINUX_KERNEL_VERSION=linux-3.10.102
-GLIBC_VERSION=glibc-2.23
-MPFR_VERSION=mpfr-3.1.4
+BINUTILS_VERSION=binutils-2.27
+GCC_VERSION=gcc-6.2.0
+LINUX_KERNEL_VERSION=linux-3.10.104
+GLIBC_VERSION=glibc-2.24
+MPFR_VERSION=mpfr-3.1.5
 GMP_VERSION=gmp-6.1.1
 MPC_VERSION=mpc-1.0.3
 ISL_VERSION=isl-0.16.1
 CLOOG_VERSION=cloog-0.18.1
+
+INSTALL_PATH=`pwd -P`/out/$GCC_VERSION
+
 export PATH=$INSTALL_PATH/bin:$PATH
 
 # Download packages
@@ -41,7 +43,7 @@ wget -nc ftp://gcc.gnu.org/pub/gcc/infrastructure/$ISL_VERSION.tar.bz2
 wget -nc ftp://gcc.gnu.org/pub/gcc/infrastructure/$CLOOG_VERSION.tar.gz
 
 # Extract everything
-#for f in *.tar*; do tar xzf $f; done
+for f in *.tar*; do extract $f; done
 
 # Make symbolic links
 cd $GCC_VERSION

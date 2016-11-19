@@ -20,7 +20,7 @@ usage() {
     exit 1
 }
 
-while getopts ":dl:fmr:t:" opt; do
+while getopts ":dl:fmr:st:" opt; do
     case $opt in
         d) [ -z "$ref" ] && ref="refs/drafts/" ;;
         e) edit="%edit" ;;
