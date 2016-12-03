@@ -25,7 +25,17 @@ while getopts ":dl:fmr:st:" opt; do
         d) [ -z "$ref" ] && ref="refs/drafts/" ;;
         e) edit="%edit" ;;
         f) push_args="-f" ;;
-        l) label="%l=$OPTARG" ;;
+        l) i=0
+           labels="%"
+           IFS=',' read -ra LABELS <<< "$OPTARG"
+           for label in "${LABELS[@]}"; do
+               labels+="l=$label"
+               i=$(($i + 1))
+               if [ $i -ne ${#LABELS[@]} ]; then
+                   labels+=","
+               fi
+           done
+           ;;
         m) [ -z "$ref" ] && ref="" ;;
         r) ref="refs/$OPTARG/" ;;
         s) submit="%submit" ;;
@@ -55,4 +65,4 @@ fi
 repo_name=$(git remote -v | grep CyanogenMod | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
 username=$(git config review.review.cyanogenmod.org.username)
 
-git push ${push_args} ssh://${username}@review.cyanogenmod.org:29418/CyanogenMod/${repo_name} HEAD:${ref}$1${topic}${label}${submit}${edit}
+git push ${push_args} ssh://${username}@review.cyanogenmod.org:29418/CyanogenMod/${repo_name} HEAD:${ref}$1${topic}${labels}${submit}${edit}
