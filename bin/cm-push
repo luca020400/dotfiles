@@ -16,6 +16,7 @@ usage() {
     echo
     echo "  Example:"
     echo "    cm-push -d -t test cm-13.0"
+    echo "    cm-push -s -l \"Code-Review+2,Verified+1\" cm-14.1"
     echo
     exit 1
 }
