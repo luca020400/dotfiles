@@ -48,7 +48,6 @@ export ANDROID_HOME=/home/luca/android/sdk/
 export ANDROID_NDK_HOME=/home/luca/android/ndk
 export PROMPT_COMMAND='history -a'
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk
-export JACK_SERVER_VM_ARGUMENTS="-Dfile.encoding=UTF-8 -XX:+TieredCompilation -Xmx4096m"
 
 alias clipboard='xclip -se c'
 alias nano='mcedit'
