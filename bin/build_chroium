@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-chromium_version="55.0.2851.2"
+chromium_version="57.0.2969.2"
 clean=0
 gsync=0
 
@@ -73,9 +73,18 @@ index be43adc..4d75fdf 100755
 EOF
 
 # Build args
-args+='target_os="android" is_debug=false is_official_build=true is_chrome_branded=false use_official_google_api_keys=false'
-args+=' exclude_unwind_tables=true enable_resource_whitelist_generation=true ffmpeg_branding="Chrome" proprietary_codecs=true'
-args+=' enable_remoting=true android_default_version_name="'$chromium_version'"'
+args+='target_os="android"
+is_debug=false
+is_official_build=true
+is_chrome_branded=false
+use_official_google_api_keys=false
+exclude_unwind_tables=true
+enable_resource_whitelist_generation=true
+ffmpeg_branding="Chrome"
+proprietary_codecs=true
+enable_remoting=true
+android_default_version_name="'$chromium_version'"'
+
 if [ "$USE_CCACHE" -eq 1 ]; then
     export CCACHE_CPP2=yes
     export CCACHE_SLOPPINESS=time_macros

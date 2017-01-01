@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-caf_version="m52"
+caf_version="m54"
 clean=0
 gsync=0
 
@@ -268,8 +268,9 @@ index 0000000..18beb6c
 EOF
 
 # Build args
-args='target_os="android" is_official_build=true is_debug=false is_component_build=false symbol_level=0 enable_nacl=false remove_webcore_debug_symbols=true'
-args+=' swe_channels="cm"'
+args+='target_os="android" is_debug=false is_official_build=true is_chrome_branded=false use_official_google_api_keys=false'
+args+=' exclude_unwind_tables=true enable_resource_whitelist_generation=true ffmpeg_branding="Chrome" proprietary_codecs=true'
+args+=' enable_remoting=true swe_channels="cm"'
 if [ "$USE_CCACHE" -eq 1 ]; then
     export CCACHE_CPP2=yes
     export CCACHE_SLOPPINESS=time_macros
