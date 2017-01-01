@@ -15,8 +15,8 @@ usage() {
     echo "    -t <topic> Append topic to change."
     echo
     echo "  Example:"
-    echo "    cm-push -d -t test cm-13.0"
-    echo "    cm-push -s -l \"Code-Review+2,Verified+1\" cm-14.1"
+    echo "    lineage-push -d -t test cm-14.1"
+    echo "    linegae-push -s -l \"Code-Review+2,Verified+1\" cm-14.1"
     echo
     exit 1
 }
@@ -63,7 +63,7 @@ if [ -z "$ref" ]; then
     ref="refs/for/"
 fi
 
-repo_name=$(git remote -v | grep CyanogenMod | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
-username=$(git config review.review.cyanogenmod.org.username)
+repo_name=$(git remote -v | grep LineageOS | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
+username=$(git config review.review.lineageos.org.username)
 
-git push ${push_args} ssh://${username}@review.cyanogenmod.org:29418/CyanogenMod/${repo_name} HEAD:${ref}$1${topic}${labels}${submit}${edit}
+git push ${push_args} ssh://${username}@review.lineageos.org:29418/LineageOS/${repo_name} HEAD:${ref}$1${topic}${labels}${submit}${edit}
