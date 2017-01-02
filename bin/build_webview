@@ -1,7 +1,8 @@
 #!/usr/bin/env zsh
 
-chromium_version="52.0.2743.98"
+chromium_version="55.0.2883.105"
 clean=0
+gsync=0
 supported_arch=(arm arm64 x86 x64)
 
 usage() {
@@ -13,6 +14,7 @@ usage() {
     echo "    -c Clean"
     echo "    -h Show this message"
     echo "    -r <release> Specify chromium release"
+    echo "    -s Sync"
     echo
     echo "  Example:"
     echo "    build_webview -c -r $chromium_version"
@@ -24,18 +26,15 @@ build_arm() {
     gn gen out/Default_arm --args=$arm_args
     ninja -C out/Default_arm system_webview_apk
     if [ "$?" -eq 0 ]; then
-        cp out/Default_arm/apks/SystemWebView.apk $HOME/android/cm/external/chromium-webview/prebuilt/arm/webview.apk
+        cp out/Default_arm/apks/SystemWebView.apk $HOME/android/lineage/external/chromium-webview/prebuilt/arm/webview.apk
     fi
 }
 
 build_arm64() {
-    build_arm
     gn gen out/Default_arm64 --args=$arm64_args
     ninja -C out/Default_arm64 system_webview_apk
     if [ "$?" -eq 0 ]; then
-        if [ -f out/Default_arm/apks/SystemWebView.apk ]; then
-            python android_webview/tools/apk_merger.py --shared_library libwebviewchromium.so --out_apk $HOME/android/cm/external/chromium-webview/prebuilt/arm64/webview.apk --zipalign_path third_party/android_tools/sdk/build-tools/23.0.1/zipalign --keystore_path build/android/ant/chromium-debug.keystore --key_name chromiumdebugkey --key_password chromium --apk_32bit out/Default_arm/apks/SystemWebView.apk --apk_64bit out/Default_arm64/apks/SystemWebView.apk
-        fi
+        cp out/Default_arm64/apks/SystemWebView.apk $HOME/android/lineage/external/chromium-webview/prebuilt/arm64/webview.apk
     fi
 }
 
@@ -43,22 +42,19 @@ build_x86() {
     gn gen out/Default_x86 --args=$x86_args
     ninja -C out/Default_x86 system_webview_apk
     if [ "$?" -eq 0 ]; then
-        cp out/Default_x86/apks/SystemWebView.apk $HOME/android/cm/external/chromium-webview/prebuilt/x86/webview.apk
+        cp out/Default_x86/apks/SystemWebView.apk $HOME/android/lineage/external/chromium-webview/prebuilt/x86/webview.apk
     fi
 }
 
 build_x64() {
-    build_x86
     gn gen out/Default_x64 --args=$x64_args
     ninja -C out/Default_x64 system_webview_apk
     if [ "$?" -eq 0 ]; then
-        if [ -f out/Default_x86/apks/SystemWebView.apk ]; then
-            python android_webview/tools/apk_merger.py --shared_library libwebviewchromium.so --out_apk $HOME/android/cm/external/chromium-webview/prebuilt/x86_64/webview.apk --zipalign_path third_party/android_tools/sdk/build-tools/23.0.1/zipalign --keystore_path build/android/ant/chromium-debug.keystore --key_name chromiumdebugkey --key_password chromium --apk_32bit out/Default_x86/apks/SystemWebView.apk --apk_64bit out/Default_x64/apks/SystemWebView.apk
-        fi
+        cp out/Default_x64/apks/SystemWebView.apk $HOME/android/lineage/external/chromium-webview/prebuilt/x86_64/webview.apk
     fi
 }
 
-while getopts ":a:chr:" opt; do
+while getopts ":a:chr:s" opt; do
     case $opt in
         a) for arch in ${supported_arch[@]}; do
                [ "$OPTARG" '==' "$arch" ] && build_arch="$OPTARG" || ((arch_try++))
@@ -72,6 +68,7 @@ while getopts ":a:chr:" opt; do
         c) clean=1 ;;
         h) usage ;;
         r) chromium_version="$OPTARG" ;;
+        s) gsync=1 ;;
         :)
           echo "Option -$OPTARG requires an argument"
           echo
@@ -104,7 +101,7 @@ fi
 
 find src -name index.lock -delete
 [ $clean -eq 1 ] && gclient recurse git clean -fdx .
-yes | gclient sync --with_branch_heads -R -r $chromium_version
+[ $gsync -eq 1 ] && yes | gclient sync --with_branch_heads -R -r $chromium_version
 cd src
 
 # Replace webview icon
@@ -116,14 +113,27 @@ cp chrome/android/java/res_chromium/mipmap-xxhdpi/app_icon.png android_webview/a
 cp chrome/android/java/res_chromium/mipmap-xxxhdpi/app_icon.png android_webview/apk/java/res/drawable-xxxhdpi/icon_webview.png
 
 # Build args
-args+='target_os="android" is_debug=false is_official_build=true is_chrome_branded=false use_official_google_api_keys=false'
-args+=' exclude_unwind_tables=true enable_resource_whitelist_generation=true ffmpeg_branding="Chrome" proprietary_codecs=true'
-args+=' enable_remoting=true android_default_version_name="'$chromium_version'"'
+args+=' target_os="android"'
+args+=' is_debug=false'
+args+=' is_official_build=true'
+args+=' is_chrome_branded=false'
+args+=' use_official_google_api_keys=false'
+args+=' exclude_unwind_tables=true'
+args+=' enable_resource_whitelist_generation=true'
+args+=' ffmpeg_branding="Chrome"'
+args+=' proprietary_codecs=true'
+args+=' enable_remoting=true'
+args+=' symbol_level=0'
+args+=' enable_nacl=false'
+args+=' remove_webcore_debug_symbols=true'
+args+=' android_default_version_name="'$chromium_version'"'
+
 if [ "$USE_CCACHE" -eq 1 ]; then
     export CCACHE_CPP2=yes
     export CCACHE_SLOPPINESS=time_macros
     args+=' cc_wrapper="ccache"'
 fi
+
 arm_args=$args' target_cpu="arm" is_clang=false'
 arm64_args=$args' target_cpu="arm64" is_clang=false'
 x86_args=$args' target_cpu="x86" is_clang=false'
@@ -137,6 +147,8 @@ rm -rf out
 if [ -n "$build_arch" ]; then
     build_$build_arch
 else
-    build_arm64 # arm64 build includes arm
-    build_x64   # x64 build includes x86
+    build_arm
+    build_arm64
+    build_x86
+    build_x64
 fi
