@@ -1,0 +1,19 @@
+#!/bin/bash
+
+file="$1"
+pattern="$2"
+replacement="$3"
+
+size_pattern=${#pattern}
+size_replacement=${#replacement}
+
+if [ $size_replacement -le $size_pattern ]; then
+    while [ $size_replacement -lt $size_pattern ]; do
+        replacement+="\x00"
+        ((size_replacement++))
+    done
+
+    sed -i "s#$pattern#$replacement#g" $file
+else
+    echo "Replacement is bigger than the pattern"
+fi
