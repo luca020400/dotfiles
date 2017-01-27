@@ -13,7 +13,7 @@ if [ $size_replacement -le $size_pattern ]; then
         ((size_replacement++))
     done
 
-    sed -i "s#$pattern#$replacement#g" $file
+    sed -i "s|$pattern|$replacement|g" $file
 else
     echo "Replacement is bigger than the pattern"
 fi

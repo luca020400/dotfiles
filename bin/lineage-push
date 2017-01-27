@@ -39,7 +39,7 @@ while getopts ":dl:fmr:st:" opt; do
            ;;
         m) [ -z "$ref" ] && ref="" ;;
         r) ref="refs/$OPTARG/" ;;
-        s) submit="%submit" ;;
+        s) submit="1" ;;
         t) topic="%topic=$OPTARG" ;;
         :)
           echo "Option -$OPTARG requires an argument"
@@ -61,6 +61,10 @@ fi
 
 if [ -z "$ref" ]; then
     ref="refs/for/"
+fi
+
+if [ x"$submit" == x1 ]; then
+    ref=""
 fi
 
 repo_name=$(git remote -v | grep LineageOS | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
