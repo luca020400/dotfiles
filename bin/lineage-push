@@ -2,7 +2,7 @@
 
 usage() {
     echo "Usage:"
-    echo "  cm-push [options] branch"
+    echo "  lineage-push [options] branch"
     echo
     echo "  Options:"
     echo "    -d Upload change as draft."
@@ -16,7 +16,7 @@ usage() {
     echo
     echo "  Example:"
     echo "    lineage-push -d -t test cm-14.1"
-    echo "    linegae-push -s -l \"Code-Review+2,Verified+1\" cm-14.1"
+    echo "    lineage-push -s -l \"Code-Review+2,Verified+1\" cm-14.1"
     echo
     exit 1
 }
@@ -39,7 +39,7 @@ while getopts ":dl:fmr:st:" opt; do
            ;;
         m) [ -z "$ref" ] && ref="" ;;
         r) ref="refs/$OPTARG/" ;;
-        s) submit="1" ;;
+        s) submit="%submit" ;;
         t) topic="%topic=$OPTARG" ;;
         :)
           echo "Option -$OPTARG requires an argument"
@@ -61,10 +61,6 @@ fi
 
 if [ -z "$ref" ]; then
     ref="refs/for/"
-fi
-
-if [ x"$submit" == x1 ]; then
-    ref=""
 fi
 
 repo_name=$(git remote -v | grep LineageOS | head -n1 | awk '{print $2}' | sed 's/.*\///' | sed 's/\.git//')
