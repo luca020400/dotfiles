@@ -3,5 +3,4 @@
 DTB=$(find . -name "*.dtb" | head -1)
 [[ -z $DTB ]] && exit
 DTBDIR=$(dirname $DTB)
-[[ -z $(strings $DTB | grep "qcom,board-id") ]] || DTBVERCMD="--force-v2"
-dtbToolCM $DTBVERCMD -o dt.img -s 2048 -p scripts/dtc/ $DTBDIR/
+dtbToolCM -o dt.img -s 2048 -p scripts/dtc/ $DTBDIR/
