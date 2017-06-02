@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-chromium_version="58.0.3029.83"
+chromium_version="59.0.3071.82"
 clean=0
 gsync=0
 supported_arch=(arm arm64 x86 x64)
@@ -13,6 +13,7 @@ usage() {
     echo "    -a <arch> Build specified arch"
     echo "    -c Clean"
     echo "    -h Show this message"
+    echo "    -o <path> Android repo root - required"
     echo "    -r <release> Specify chromium release"
     echo "    -s Sync"
     echo
@@ -26,7 +27,7 @@ build_arm() {
     gn gen out/Default_arm --args=$arm_args
     ninja -C out/Default_arm system_webview_apk
     if [ "$?" -eq 0 ]; then
-        cp out/Default_arm/apks/SystemWebView.apk $HOME/android/lineage/external/chromium-webview/prebuilt/arm/webview.apk
+        cp out/Default_arm/apks/SystemWebView.apk $out/external/chromium-webview/prebuilt/arm/webview.apk
     fi
 }
 
@@ -34,7 +35,7 @@ build_arm64() {
     gn gen out/Default_arm64 --args=$arm64_args
     ninja -C out/Default_arm64 system_webview_apk
     if [ "$?" -eq 0 ]; then
-        cp out/Default_arm64/apks/SystemWebView.apk $HOME/android/lineage/external/chromium-webview/prebuilt/arm64/webview.apk
+        cp out/Default_arm64/apks/SystemWebView.apk $out/external/chromium-webview/prebuilt/arm64/webview.apk
     fi
 }
 
@@ -42,7 +43,7 @@ build_x86() {
     gn gen out/Default_x86 --args=$x86_args
     ninja -C out/Default_x86 system_webview_apk
     if [ "$?" -eq 0 ]; then
-        cp out/Default_x86/apks/SystemWebView.apk $HOME/android/lineage/external/chromium-webview/prebuilt/x86/webview.apk
+        cp out/Default_x86/apks/SystemWebView.apk $out/external/chromium-webview/prebuilt/x86/webview.apk
     fi
 }
 
@@ -50,11 +51,11 @@ build_x64() {
     gn gen out/Default_x64 --args=$x64_args
     ninja -C out/Default_x64 system_webview_apk
     if [ "$?" -eq 0 ]; then
-        cp out/Default_x64/apks/SystemWebView.apk $HOME/android/lineage/external/chromium-webview/prebuilt/x86_64/webview.apk
+        cp out/Default_x64/apks/SystemWebView.apk $out/external/chromium-webview/prebuilt/x86_64/webview.apk
     fi
 }
 
-while getopts ":a:chr:s" opt; do
+while getopts ":a:cho:r:s" opt; do
     case $opt in
         a) for arch in ${supported_arch[@]}; do
                [ "$OPTARG" '==' "$arch" ] && build_arch="$OPTARG" || ((arch_try++))
@@ -67,6 +68,7 @@ while getopts ":a:chr:s" opt; do
            ;;
         c) clean=1 ;;
         h) usage ;;
+        o) out="$OPTARG" ;;
         r) chromium_version="$OPTARG" ;;
         s) gsync=1 ;;
         :)
@@ -82,6 +84,12 @@ while getopts ":a:chr:s" opt; do
     esac
 done
 shift $((OPTIND-1))
+
+# Check if $out is set
+if [ ! -d $out ]; then
+    echo "Android out dir isn't set"
+    echo "Specify with -o arg"
+fi
 
 # Add depot_tools to PATH
 if [ ! -d depot_tools ]; then
@@ -135,13 +143,13 @@ if [ "$USE_CCACHE" -eq 1 ]; then
     args+=' cc_wrapper="ccache"'
 fi
 
-arm_args=$args' target_cpu="arm" is_clang=false'
-arm64_args=$args' target_cpu="arm64" is_clang=false'
-x86_args=$args' target_cpu="x86" is_clang=false'
-x64_args=$args' target_cpu="x64" is_clang=false'
+arm_args=$args' target_cpu="arm"'
+arm64_args=$args' target_cpu="arm64"'
+x86_args=$args' target_cpu="x86"'
+x64_args=$args' target_cpu="x64"'
 
 # Setup environment
-rm -rf out
+[ $clean -eq 1 ] && rm -rf out
 . build/android/envsetup.sh
 
 # Check target and build
