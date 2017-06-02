@@ -3,7 +3,7 @@
 chromium_version="59.0.3071.82"
 clean=0
 gsync=0
-supported_arch=(arm arm64 x86 x64)
+supported_archs=(arm arm64 x86 x64)
 
 usage() {
     echo "Usage:"
@@ -18,51 +18,30 @@ usage() {
     echo "    -s Sync"
     echo
     echo "  Example:"
-    echo "    build_webview -c -r $chromium_version"
+    echo "    build_webview -o <path> -c -r $chromium_version"
     echo
     exit 1
 }
 
-build_arm() {
-    gn gen out/Default_arm --args=$arm_args
-    ninja -C out/Default_arm system_webview_apk
-    if [ "$?" -eq 0 ]; then
-        cp out/Default_arm/apks/SystemWebView.apk $out/external/chromium-webview/prebuilt/arm/webview.apk
-    fi
-}
+build() {
+    build_args=$args' target_cpu="'$1'"'
 
-build_arm64() {
-    gn gen out/Default_arm64 --args=$arm64_args
-    ninja -C out/Default_arm64 system_webview_apk
+    gn gen out/Default_$1 --args=$build_args
+    ninja -C out/Default_$1 system_webview_apk
     if [ "$?" -eq 0 ]; then
-        cp out/Default_arm64/apks/SystemWebView.apk $out/external/chromium-webview/prebuilt/arm64/webview.apk
-    fi
-}
-
-build_x86() {
-    gn gen out/Default_x86 --args=$x86_args
-    ninja -C out/Default_x86 system_webview_apk
-    if [ "$?" -eq 0 ]; then
-        cp out/Default_x86/apks/SystemWebView.apk $out/external/chromium-webview/prebuilt/x86/webview.apk
-    fi
-}
-
-build_x64() {
-    gn gen out/Default_x64 --args=$x64_args
-    ninja -C out/Default_x64 system_webview_apk
-    if [ "$?" -eq 0 ]; then
-        cp out/Default_x64/apks/SystemWebView.apk $out/external/chromium-webview/prebuilt/x86_64/webview.apk
+        [ "$1" '==' "x64" ] && android_arch="x86_64" || android_arch=$1
+        cp out/Default_$1/apks/SystemWebView.apk $out/external/chromium-webview/prebuilt/$android_arch/webview.apk
     fi
 }
 
 while getopts ":a:cho:r:s" opt; do
     case $opt in
-        a) for arch in ${supported_arch[@]}; do
+        a) for arch in ${supported_archs[@]}; do
                [ "$OPTARG" '==' "$arch" ] && build_arch="$OPTARG" || ((arch_try++))
            done
-           if [ $arch_try -eq ${#supported_arch[@]} ]; then
+           if [ $arch_try -eq ${#supported_archs[@]} ]; then
                echo "Unsupported ARCH: $OPTARG"
-               echo "Supported ARCHs: ${supported_arch[@]}"
+               echo "Supported ARCHs: ${supported_archs[@]}"
                exit 1
            fi
            ;;
@@ -99,9 +78,6 @@ export PATH="$(pwd -P)/depot_tools:$PATH"
 
 # Switch to python2
 . $HOME/android/venv/bin/activate
-
-# Sync chromium
-export GYP_CHROMIUM_NO_ACTION=1
 
 if [ ! -d src ]; then
     fetch --nohooks android
@@ -143,21 +119,16 @@ if [ "$USE_CCACHE" -eq 1 ]; then
     args+=' cc_wrapper="ccache"'
 fi
 
-arm_args=$args' target_cpu="arm"'
-arm64_args=$args' target_cpu="arm64"'
-x86_args=$args' target_cpu="x86"'
-x64_args=$args' target_cpu="x64"'
-
 # Setup environment
 [ $clean -eq 1 ] && rm -rf out
 . build/android/envsetup.sh
 
 # Check target and build
 if [ -n "$build_arch" ]; then
-    build_$build_arch
+    build $build_arch
 else
-    build_arm
-    build_arm64
-    build_x86
-    build_x64
+    build arm
+    build arm64
+    build x86
+    build x64
 fi
