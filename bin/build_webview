@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-chromium_version="59.0.3071.82"
+chromium_version="59.0.3071.86"
 clean=0
 gsync=0
 supported_archs=(arm arm64 x86 x64)
@@ -26,11 +26,11 @@ usage() {
 build() {
     build_args=$args' target_cpu="'$1'"'
 
-    gn gen out/Default_$1 --args=$build_args
-    ninja -C out/Default_$1 system_webview_apk
+    gn gen out/$1 --args=$build_args
+    ninja -C out/$1 system_webview_apk
     if [ "$?" -eq 0 ]; then
         [ "$1" '==' "x64" ] && android_arch="x86_64" || android_arch=$1
-        cp out/Default_$1/apks/SystemWebView.apk $out/external/chromium-webview/prebuilt/$android_arch/webview.apk
+        cp out/$1/apks/SystemWebView.apk $out/external/chromium-webview/prebuilt/$android_arch/webview.apk
     fi
 }
 
@@ -95,6 +95,9 @@ cp chrome/android/java/res_chromium/mipmap-hdpi/app_icon.png android_webview/apk
 cp chrome/android/java/res_chromium/mipmap-xhdpi/app_icon.png android_webview/apk/java/res/drawable-xhdpi/icon_webview.png
 cp chrome/android/java/res_chromium/mipmap-xxhdpi/app_icon.png android_webview/apk/java/res/drawable-xxhdpi/icon_webview.png
 cp chrome/android/java/res_chromium/mipmap-xxxhdpi/app_icon.png android_webview/apk/java/res/drawable-xxxhdpi/icon_webview.png
+
+# Apply our patches
+git am $out/external/chromium-webview/patches/*
 
 # Build args
 args+=' target_os="android"'
