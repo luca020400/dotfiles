@@ -13,7 +13,6 @@ usage() {
     echo "    -a <arch> Build specified arch"
     echo "    -c Clean"
     echo "    -h Show this message"
-    echo "    -o <path> Android repo root - required"
     echo "    -r <release> Specify chromium release"
     echo "    -s Sync"
     echo
@@ -30,11 +29,11 @@ build() {
     ninja -C out/$1 system_webview_apk
     if [ "$?" -eq 0 ]; then
         [ "$1" '==' "x64" ] && android_arch="x86_64" || android_arch=$1
-        cp out/$1/apks/SystemWebView.apk $out/external/chromium-webview/prebuilt/$android_arch/webview.apk
+        cp out/$1/apks/SystemWebView.apk ../android_external_chromium-webview/prebuilt/$android_arch/webview.apk
     fi
 }
 
-while getopts ":a:cho:r:s" opt; do
+while getopts ":a:chr:s" opt; do
     case $opt in
         a) for arch in ${supported_archs[@]}; do
                [ "$OPTARG" '==' "$arch" ] && build_arch="$OPTARG" || ((arch_try++))
@@ -47,7 +46,6 @@ while getopts ":a:cho:r:s" opt; do
            ;;
         c) clean=1 ;;
         h) usage ;;
-        o) out="$OPTARG" ;;
         r) chromium_version="$OPTARG" ;;
         s) gsync=1 ;;
         :)
@@ -64,10 +62,9 @@ while getopts ":a:cho:r:s" opt; do
 done
 shift $((OPTIND-1))
 
-# Check if $out is set
-if [ ! -d $out ]; then
-    echo "Android out dir isn't set"
-    echo "Specify with -o arg"
+# Download android_external_chromium-webview
+if [ ! -d android_external_chromium-webview ]; then
+    git clone https://github.com/LineageOS/android_external_chromium-webview.git --depth 1
 fi
 
 # Add depot_tools to PATH
@@ -84,7 +81,6 @@ if [ ! -d src ]; then
 fi
 
 find src -name index.lock -delete
-[ $clean -eq 1 ] && gclient recurse git clean -fdx .
 [ $gsync -eq 1 ] && yes | gclient sync --with_branch_heads -R -r $chromium_version
 cd src
 
@@ -97,7 +93,7 @@ cp chrome/android/java/res_chromium/mipmap-xxhdpi/app_icon.png android_webview/a
 cp chrome/android/java/res_chromium/mipmap-xxxhdpi/app_icon.png android_webview/apk/java/res/drawable-xxxhdpi/icon_webview.png
 
 # Apply our patches
-git am $out/external/chromium-webview/patches/*
+git am ../android_external_chromium-webview/patches/*
 
 # Build args
 args+=' target_os="android"'

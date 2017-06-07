@@ -6,7 +6,7 @@ gsync=0
 
 usage() {
     echo "Usage:"
-    echo "  build_swe [ options ]"
+    echo "  build_chromium [ options ]"
     echo
     echo "  Options:"
     echo "    -c Clean"
@@ -50,7 +50,6 @@ export PATH="$(pwd -P)/depot_tools:$PATH"
 . $HOME/android/venv/bin/activate
 
 # Sync chromium
-export GYP_CHROMIUM_NO_ACTION=1
 [ $gsync -eq 1 ] && yes | gclient sync --with_branch_heads -R -r tags/$chromium_version
 cd src
 
@@ -65,6 +64,7 @@ args+=' enable_resource_whitelist_generation=true'
 args+=' ffmpeg_branding="Chrome"'
 args+=' proprietary_codecs=true'
 args+=' enable_remoting=true'
+args+=' is_component_build=false'
 args+=' symbol_level=0'
 args+=' enable_nacl=false'
 args+=' remove_webcore_debug_symbols=true'
