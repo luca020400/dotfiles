@@ -41,11 +41,14 @@ bindkey -M isearch . self-insert
 
 ## END OF FILE #################################################################
 
+export CCACHE_COMPRESS=1
+export CCACHE_DIR=$HOME/.ccache
+export CCACHE_DIR_ANDROID=$HOME/.ccache_android
 export USE_CCACHE=1
+
 export EDITOR=mcedit
-export PATH="$HOME/bin:$HOME/android/sdk/build-tools/25.0.2:$HOME/.gem/ruby/2.4.0/bin:/usr/lib/ccache/bin:$PATH"
+export PATH="$HOME/bin:$HOME/android/sdk/build-tools/25.0.2:$HOME/.gem/ruby/2.4.0/bin:$HOME/.local/bin:/usr/lib/ccache/bin:$PATH"
 export ANDROID_HOME=/home/luca/android/sdk/
-export ANDROID_NDK_HOME=/home/luca/android/ndk
 export PROMPT_COMMAND='history -a'
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk
 export DEVKITPRO=/home/luca/devkitPro
@@ -74,3 +77,60 @@ bindkey "$terminfo[kcud1]" history-substring-search-down
 
 # sh word split behaviour
 setopt shwordsplit
+
+# Setup ccache
+function ccache-s() {
+  if [ "$USE_CCACHE" != "1" ]; then
+    echo "USE_CCACHE not set, bailing!"
+    return
+  fi
+
+  if [ -z "$CCACHE_DIR_ANDROID" ]; then
+    echo "CCACHE_DIR_ANDROID not set, bailing!"
+    return
+  fi
+
+  device="$1"
+  if [ -z "$device" ]; then
+    echo "device parameter invalid, bailing!"
+    return
+  fi
+
+  device_cache="$CCACHE_DIR_ANDROID/$device"
+  if [ ! -d "$device_cache" ]; then
+    mkdir -p "$device_cache"
+  fi
+
+  if [ ! -f "$device_cache/.configured" ]; then
+      echo "Setting up ccache for: $device"
+      $(which ccache) -F 0 && $(which ccache) -M 0
+      touch "$device_cache/.configured"
+  fi
+
+  touch "$device_cache/.last_used"
+  export CCACHE_DIR="$device_cache"
+}
+
+# setup ccache for breakfast
+function breakfast-c() {
+  local device="$1"
+  if [ -z "$device" ]; then
+    echo "No argument given, bailing!"
+    return
+  fi
+
+  ccache-s "$device"
+  breakfast "$device"
+}
+
+# setup ccache for lunch
+function lunch-c() {
+  local device="$1"
+  if [ -z "$device" ]; then
+    echo "No argument given, bailing!"
+    return
+  fi
+
+  ccache-s "$device"
+  lunch "$device"
+}

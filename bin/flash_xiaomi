@@ -2,79 +2,85 @@
 
 fastboot=fastboot
 
-fastboot $* getvar product 2>&1 | grep "^product: *MSM8996_B7"
+$fastboot getvar product 2>&1 | grep "^product: *MSM8996_B7"
 if [ $? -ne 0 ] ; then echo "Missmatching image and device"; exit 1; fi
-$fastboot $* flash xbl xbl.elf
+$fastboot flash xbl xbl.elf
 if [ $? -ne 0 ] ; then echo "Flash xbl error"; exit 1; fi
-$fastboot $* flash tz tz.mbn
+$fastboot flash tz tz.mbn
 if [ $? -ne 0 ] ; then echo "Flash tz error"; exit 1; fi
-$fastboot $* flash tzbak tz.mbn
+$fastboot flash tzbak tz.mbn
 if [ $? -ne 0 ] ; then echo "Flash tzbak error"; exit 1; fi
-$fastboot $* flash hyp hyp.mbn
+$fastboot flash hyp hyp.mbn
 if [ $? -ne 0 ] ; then echo "Flash hyp error"; exit 1; fi
-$fastboot $* flash hypbak hyp.mbn
+$fastboot flash hypbak hyp.mbn
 if [ $? -ne 0 ] ; then echo "Flash hypbak error"; exit 1; fi
-$fastboot $* flash rpm rpm.mbn
+$fastboot flash rpm rpm.mbn
 if [ $? -ne 0 ] ; then echo "Flash rpm error"; exit 1; fi
-$fastboot $* flash rpmbak rpm.mbn
+$fastboot flash rpmbak rpm.mbn
 if [ $? -ne 0 ] ; then echo "Flash rpmbak error"; exit 1; fi
-$fastboot $* flash aboot emmc_appsboot.mbn
+$fastboot flash aboot emmc_appsboot.mbn
 if [ $? -ne 0 ] ; then echo "Flash aboot error"; exit 1; fi
-$fastboot $* flash abootbak emmc_appsboot.mbn
+$fastboot flash abootbak emmc_appsboot.mbn
 if [ $? -ne 0 ] ; then echo "Flash abootbak error"; exit 1; fi
-$fastboot $* flash pmic pmic.elf
+$fastboot flash pmic pmic.elf
 if [ $? -ne 0 ] ; then echo "Flash pmic error"; exit 1; fi
-$fastboot $* flash pmicbak pmic.elf
+$fastboot flash pmicbak pmic.elf
 if [ $? -ne 0 ] ; then echo "Flash pmicbak error"; exit 1; fi
-$fastboot $* flash devcfg devcfg.mbn
+$fastboot flash devcfg devcfg.mbn
 if [ $? -ne 0 ] ; then echo "Flash devcfg error"; exit 1; fi
-$fastboot $* flash bluetooth BTFM.bin
+$fastboot flash bluetooth BTFM.bin
 if [ $? -ne 0 ] ; then echo "Flash bluetooth error"; exit 1; fi
-$fastboot $* flash cmnlib cmnlib.mbn
+$fastboot flash cmnlib cmnlib.mbn
 if [ $? -ne 0 ] ; then echo "Flash cmnlib error"; exit 1; fi
-$fastboot $* flash cmnlibbak cmnlib.mbn
+$fastboot flash cmnlibbak cmnlib.mbn
 if [ $? -ne 0 ] ; then echo "Flash cmnlibbak error"; exit 1; fi
-$fastboot $* flash cmnlib64 cmnlib64.mbn
+$fastboot flash cmnlib64 cmnlib64.mbn
 if [ $? -ne 0 ] ; then echo "Flash cmnlib64 error"; exit 1; fi
-$fastboot $* flash cmnlib64bak cmnlib64.mbn
+$fastboot flash cmnlib64bak cmnlib64.mbn
 if [ $? -ne 0 ] ; then echo "Flash cmnlib64bak error"; exit 1; fi
-$fastboot $* flash modem NON-HLOS.bin
+$fastboot flash modem NON-HLOS.bin
 if [ $? -ne 0 ] ; then echo "Flash modem error"; exit 1; fi
-$fastboot $* flash dsp adspso.bin
+$fastboot flash dsp adspso.bin
 if [ $? -ne 0 ] ; then echo "Flash dsp error"; exit 1; fi
-$fastboot $* flash keymaster keymaster.mbn
+$fastboot flash keymaster keymaster.mbn
 if [ $? -ne 0 ] ; then echo "Flash keymaster error"; exit 1; fi
-$fastboot $* flash keymasterbak keymaster.mbn
+$fastboot flash keymasterbak keymaster.mbn
 if [ $? -ne 0 ] ; then echo "Flash keymasterbak error"; exit 1; fi
 if [ -f misc.img ]; then
-    $fastboot $* flash misc misc.img
+    $fastboot flash misc misc.img
     if [ $? -ne 0 ] ; then echo "Flash misc error"; exit 1; fi
 fi
-#$fastboot $* flash system system.img
-#if [ $? -ne 0 ] ; then echo "Flash system error"; exit 1; fi
-#$fastboot $* flash cache cache.img
-#if [ $? -ne 0 ] ; then echo "Flash cache error"; exit 1; fi
-#$fastboot $* flash userdata userdata.img
-#if [ $? -ne 0 ] ; then echo "Flash userdata error"; exit 1; fi
-#$fastboot $* flash recovery recovery.img
-#if [ $? -ne 0 ] ; then echo "Flash recovery error"; exit 1; fi
-$fastboot $* flash splash splash.img
+if [ "$1" == 'miui' ]; then
+    $fastboot flash system system.img
+    if [ $? -ne 0 ] ; then echo "Flash system error"; exit 1; fi
+    $fastboot flash cache cache.img
+    if [ $? -ne 0 ] ; then echo "Flash cache error"; exit 1; fi
+    $fastboot flash userdata userdata.img
+    if [ $? -ne 0 ] ; then echo "Flash userdata error"; exit 1; fi
+    $fastboot flash recovery recovery.img
+    if [ $? -ne 0 ] ; then echo "Flash recovery error"; exit 1; fi
+fi
+$fastboot flash splash splash.img
 if [ $? -ne 0 ] ; then echo "Flash splash error"; exit 1; fi
-$fastboot $* flash logo logo.img
+$fastboot flash logo logo.img
 if [ $? -ne 0 ] ; then echo "Flash logo error"; exit 1; fi
-#$fastboot $* erase boot
-#if [ $? -ne 0 ] ; then echo "Erase boot error"; exit 1; fi
-$fastboot $* erase sec
+if [ "$1" == 'miui' ]; then
+    $fastboot erase boot
+    if [ $? -ne 0 ] ; then echo "Erase boot error"; exit 1; fi
+fi
+$fastboot erase sec
 if [ $? -ne 0 ] ; then echo "Erase sec error"; exit 1; fi
-$fastboot $* erase switch
+$fastboot erase switch
 if [ $? -ne 0 ] ; then echo "Erase switch error"; exit 1; fi
-$fastboot $* erase mdtp
+$fastboot erase mdtp
 if [ $? -ne 0 ] ; then echo "Erase mdtp error"; exit 1; fi
-#$fastboot $* flash boot boot.img
-#if [ $? -ne 0 ] ; then echo "Flash boot error"; exit 1; fi
+if [ "$1" == 'miui' ]; then
+    $fastboot flash boot boot.img
+    if [ $? -ne 0 ] ; then echo "Flash boot error"; exit 1; fi
+fi
 if [ -f cust.img ]; then
-    $fastboot $* flash cust cust.img
+    $fastboot flash cust cust.img
     if [ $? -ne 0 ] ; then echo "Flash cust error"; exit 1; fi
 fi
-$fastboot $* reboot
+$fastboot reboot
 if [ $? -ne 0 ] ; then echo "Reboot error"; exit 1; fi

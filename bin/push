@@ -1,7 +1,15 @@
 #!/bin/bash
 
+function push_impl() {
+    adb push $1 /system/$1
+    adb shell restorecon /system/$1
+}
+
 adb wait-for-device root && adb wait-for-device remount
 for blob in $@; do
-    adb push $blob /system/$blob
-    adb shell restorecon /system/$blob
+    if [ -f $blob ] || [ -d $blob ]; then
+        push_impl $blob
+    else
+        find -name $blob | xargs push
+    fi
 done
