@@ -1,6 +1,7 @@
 #!/bin/bash
 
 fastboot=fastboot
+#fastboot="echo fastboot"
 
 $fastboot getvar product 2>&1 | grep "^product: *MSM8996_B7"
 if [ $? -ne 0 ] ; then echo "Missmatching image and device"; exit 1; fi
