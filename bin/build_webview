@@ -17,7 +17,7 @@ usage() {
     echo "    -s Sync"
     echo
     echo "  Example:"
-    echo "    build_webview -o <path> -c -r $chromium_version"
+    echo "    build_webview -c -r $chromium_version"
     echo
     exit 1
 }
