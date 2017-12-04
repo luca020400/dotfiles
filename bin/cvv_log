@@ -1,6 +1,0 @@
-#!/bin/bash
-
-login_json=$(curl -X POST -d @data.json -H "Content-Type: application/json" -H "User-Agent: zorro/1.0" -H  "Z-Dev-Apikey: +zorro+" https://web.spaggiari.eu/rest/v1/auth/login)
-echo $login_json | jq -r '.ident' | sed 's/^.\(.*\).$/\1/' > ident.txt
-echo $login_json | jq -r '.token' > token.txt
-curl -X GET -H "Content-Type: application/json" -H "User-Agent: zorro/1.0" -H  "Z-Dev-Apikey: +zorro+" -H "Z-Auth-Token: $(cat token.txt)" https://web.spaggiari.eu/rest/v1/students/$(cat ident.txt)/agenda/all/20170925/20170926 | jsonlint
