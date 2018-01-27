@@ -77,11 +77,13 @@ export PATH="$(pwd -P)/depot_tools:$PATH"
 . $HOME/android/venv/bin/activate
 
 if [ ! -d src ]; then
-    fetch --nohooks android
+    fetch --no-history --nohooks android
 fi
 
-find src -name index.lock -delete
-[ $gsync -eq 1 ] && yes | gclient sync --with_branch_heads -R -r $chromium_version
+if [ $gsync -eq 1 ]; then
+    find src -name index.lock -delete
+    yes | gclient sync --with_branch_heads -R -r $chromium_version
+fi
 cd src
 
 # Replace webview icon
@@ -93,7 +95,9 @@ cp chrome/android/java/res_chromium/mipmap-xxhdpi/app_icon.png android_webview/a
 cp chrome/android/java/res_chromium/mipmap-xxxhdpi/app_icon.png android_webview/apk/java/res/drawable-xxxhdpi/icon_webview.png
 
 # Apply our patches
-git am ../android_external_chromium-webview/patches/*
+if [ $gsync -eq 1 ]; then
+    git am ../android_external_chromium-webview/patches/*
+fi
 
 # Build args
 args+=' target_os="android"'
@@ -101,7 +105,6 @@ args+=' is_debug=false'
 args+=' is_official_build=true'
 args+=' is_chrome_branded=false'
 args+=' use_official_google_api_keys=false'
-args+=' exclude_unwind_tables=true'
 args+=' enable_resource_whitelist_generation=true'
 args+=' ffmpeg_branding="Chrome"'
 args+=' proprietary_codecs=true'
