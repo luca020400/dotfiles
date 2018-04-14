@@ -84,7 +84,14 @@ def unpack_bootimage(args):
 
     print('boot image header version: %s' % kernel_ramdisk_second_info[8])
 
-    print('os version and patch level: %s' % kernel_ramdisk_second_info[9])
+    os_version = kernel_ramdisk_second_info[9]
+    major = (os_version >> 25) & 0x7f
+    minor = (os_version >> 18) & 0x7f
+    patch = (os_version >> 11) & 0x7f
+    year = ((os_version >> 4) & 0x7f) + 2000
+    month = (os_version >> 0) & 0xf
+    print('os version {}.{}.{}'.format(major, minor, patch))
+    print('os patch level {}-{}'.format(year, month))
 
     product_name = unpack('16s', args.boot_img.read(16))
     print('product name: %s' % product_name)
