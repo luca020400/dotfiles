@@ -33,6 +33,8 @@ def create_out_dir(dir_path):
 
 def extract_image(offset, size, bootimage, extracted_image_name):
     """extracts an image from the bootimage"""
+    if size == 0:
+        return
     bootimage.seek(offset)
     with open(extracted_image_name, 'wb') as file_out:
         file_out.write(bootimage.read(size))
@@ -43,16 +45,15 @@ def get_number_of_pages(image_size, page_size):
     return (image_size + page_size - 1) / page_size
 
 
-def seekToAndroidMagic(bootimage):
+def get_android_magic_offset(bootimage):
     """seek to android bootimg magic header"""
     mm = mmap.mmap(bootimage.fileno(), 0, access=mmap.ACCESS_READ)
-    offset = mm.find(b'ANDROID!')
-    bootimage.seek(offset)
+    return mm.find(b'ANDROID!')
 
 
 def unpack_bootimage(args):
     """extracts kernel, ramdisk, second bootloader and recovery dtbo"""
-    seekToAndroidMagic(args.boot_img)
+    args.boot_img.seek(get_android_magic_offset(args.boot_img))
     boot_magic = unpack('8s', args.boot_img.read(8))
     print('boot_magic: %s' % boot_magic)
     kernel_ramdisk_second_info = unpack('10I', args.boot_img.read(10 * 4))
