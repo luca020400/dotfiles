@@ -54,35 +54,35 @@ def get_android_magic_offset(bootimage):
 def unpack_bootimage(args):
     """extracts kernel, ramdisk, second bootloader and recovery dtbo"""
     args.boot_img.seek(get_android_magic_offset(args.boot_img))
-    boot_magic = unpack('8s', args.boot_img.read(8))
-    print('boot_magic: %s' % boot_magic)
+    boot_magic = unpack('8s', args.boot_img.read(8))[0]
+    print('boot_magic: {}'.format(boot_magic))
     kernel_ramdisk_second_info = unpack('10I', args.boot_img.read(10 * 4))
 
     base_addr = kernel_ramdisk_second_info[1] - 0x00008000
-    print('base addr: 0x%0.8x' % base_addr)
+    print('base addr: 0x{:08x}'.format(base_addr))
 
     kernel_offset = kernel_ramdisk_second_info[1] - base_addr
-    print('kernel_size: %s' % kernel_ramdisk_second_info[0])
-    print('kernel load address: %s' % kernel_ramdisk_second_info[1])
-    print('kernel offset: 0x%0.8x' % kernel_offset)
+    print('kernel_size: {}'.format(kernel_ramdisk_second_info[0]))
+    print('kernel load address: {}'.format(kernel_ramdisk_second_info[1]))
+    print('kernel offset: 0x{:08x}'.format(kernel_offset))
 
     ramdisk_offset = kernel_ramdisk_second_info[3] - base_addr
-    print('ramdisk size: %s' % kernel_ramdisk_second_info[2])
-    print('ramdisk load address: %s' % kernel_ramdisk_second_info[3])
-    print('ramdisk offset: 0x%0.8x' % ramdisk_offset)
+    print('ramdisk size: {}'.format(kernel_ramdisk_second_info[2]))
+    print('ramdisk load address: {}'.format(kernel_ramdisk_second_info[3]))
+    print('ramdisk offset: 0x{:08x}'.format(ramdisk_offset))
 
     second_offset = kernel_ramdisk_second_info[5] - base_addr
-    print('second bootloader size: %s' % kernel_ramdisk_second_info[4])
-    print('second bootloader load address: %s' % kernel_ramdisk_second_info[5])
-    print('second bootloader offset: 0x%0.8x' % second_offset)
+    print('second bootloader size: {}'.format(kernel_ramdisk_second_info[4]))
+    print('second bootloader load address: {}'.format(kernel_ramdisk_second_info[5]))
+    print('second bootloader offset: 0x{:08x}'.format(second_offset))
 
     tags_offset = kernel_ramdisk_second_info[6] - base_addr
-    print('kernel tags load address: %s' % kernel_ramdisk_second_info[6])
-    print('kernel tags offset: 0x%0.8x' % tags_offset)
+    print('kernel tags load address: {}'.format(kernel_ramdisk_second_info[6]))
+    print('kernel tags offset: 0x{:08x}'.format(tags_offset))
 
-    print('page size: %s' % kernel_ramdisk_second_info[7])
+    print('page size: {}'.format(kernel_ramdisk_second_info[7]))
 
-    print('boot image header version: %s' % kernel_ramdisk_second_info[8])
+    print('boot image header version: {}'.format(kernel_ramdisk_second_info[8]))
 
     os_version = kernel_ramdisk_second_info[9]
     major = (os_version >> 25) & 0x7f
@@ -93,15 +93,15 @@ def unpack_bootimage(args):
     print('os version {}.{}.{}'.format(major, minor, patch))
     print('os patch level {}-{}'.format(year, month))
 
-    product_name = unpack('16s', args.boot_img.read(16))
-    print('product name: %s' % product_name)
-    cmdline = unpack('512s', args.boot_img.read(512))
-    print('command line args: %s' % cmdline)
+    product_name = unpack('16s', args.boot_img.read(16))[0]
+    print('product name: {}'.format(product_name))
+    cmdline = unpack('512s', args.boot_img.read(512))[0]
+    print('command line args: {}'.format(cmdline))
 
     args.boot_img.read(32)  # ignore SHA
 
-    extra_cmdline = unpack('1024s', args.boot_img.read(1024))
-    print('additional command line args: %s' % extra_cmdline)
+    extra_cmdline = unpack('1024s', args.boot_img.read(1024))[0]
+    print('additional command line args: {}'.format(extra_cmdline))
 
     kernel_size = kernel_ramdisk_second_info[0]
     ramdisk_size = kernel_ramdisk_second_info[2]
@@ -110,11 +110,11 @@ def unpack_bootimage(args):
     version = kernel_ramdisk_second_info[8]
     if version > 0:
         recovery_dtbo_size = unpack('I', args.boot_img.read(1 * 4))[0]
-        print('recovery dtbo size: %s' % recovery_dtbo_size)
+        print('recovery dtbo size: {}'.format(recovery_dtbo_size))
         recovery_dtbo_address = unpack('Q', args.boot_img.read(8))[0]
-        print('recovery dtbo load address: %s' % recovery_dtbo_address)
+        print('recovery dtbo load address: {}'.format(recovery_dtbo_address))
         boot_header_size = unpack('I', args.boot_img.read(4))[0]
-        print('boot header size: %s' % boot_header_size)
+        print('boot header size: {}'.format(boot_header_size))
     else:
         recovery_dtbo_size = 0
 
