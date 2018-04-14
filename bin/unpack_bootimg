@@ -57,15 +57,33 @@ def unpack_bootimage(args):
     boot_magic = unpack('8s', args.boot_img.read(8))
     print('boot_magic: %s' % boot_magic)
     kernel_ramdisk_second_info = unpack('10I', args.boot_img.read(10 * 4))
+
+    base_addr = kernel_ramdisk_second_info[1] - 0x00008000
+    print('base addr: 0x%0.8x' % base_addr)
+
+    kernel_offset = kernel_ramdisk_second_info[1] - base_addr
     print('kernel_size: %s' % kernel_ramdisk_second_info[0])
     print('kernel load address: %s' % kernel_ramdisk_second_info[1])
+    print('kernel offset: 0x%0.8x' % kernel_offset)
+
+    ramdisk_offset = kernel_ramdisk_second_info[3] - base_addr
     print('ramdisk size: %s' % kernel_ramdisk_second_info[2])
     print('ramdisk load address: %s' % kernel_ramdisk_second_info[3])
+    print('ramdisk offset: 0x%0.8x' % ramdisk_offset)
+
+    second_offset = kernel_ramdisk_second_info[5] - base_addr
     print('second bootloader size: %s' % kernel_ramdisk_second_info[4])
     print('second bootloader load address: %s' % kernel_ramdisk_second_info[5])
+    print('second bootloader offset: 0x%0.8x' % second_offset)
+
+    tags_offset = kernel_ramdisk_second_info[6] - base_addr
     print('kernel tags load address: %s' % kernel_ramdisk_second_info[6])
+    print('kernel tags offset: 0x%0.8x' % tags_offset)
+
     print('page size: %s' % kernel_ramdisk_second_info[7])
+
     print('boot image header version: %s' % kernel_ramdisk_second_info[8])
+
     print('os version and patch level: %s' % kernel_ramdisk_second_info[9])
 
     product_name = unpack('16s', args.boot_img.read(16))
