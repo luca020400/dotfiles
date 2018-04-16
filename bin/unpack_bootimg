@@ -174,8 +174,7 @@ def unpack_bootimage(args):
               ' --os_version {}.{}.{}'.format(major, minor, patch) + \
               ' --tags_offset 0x{:08x}'.format(mkbootimg_tags_offset) + \
               ' --board "{}"'.format(product_name) + \
-              ' --pagesize {}'.format(page_size) + \
-              ' --out {}'.format(os.path.join(args.out, 'boot'))
+              ' --pagesize {}'.format(page_size)
 
     if version > 0:
         command += '' + \
@@ -184,6 +183,8 @@ def unpack_bootimage(args):
                                                                                image_info_list) else '/dev/null')) + \
                    ' --recovery_dtbo_offset 0x{:08x}'.format(mkbootimg_recovery_dtbo_offset) + \
                    ' --header_version {}'.format(version)
+
+    command += ' --out {}'.format(os.path.join(args.out, 'boot'))
 
     print(command)
 
