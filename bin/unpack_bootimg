@@ -151,16 +151,20 @@ def unpack_bootimage(args):
 
     # Print mkbootimg command
     command = 'mkbootimg' + \
-              ' --kernel {}'.format(os.path.join(args.out, 'kernel')) + \
-              ' --ramdisk {}'.format(os.path.join(args.out, 'ramdisk')) + \
-              ' --second {}'.format(os.path.join(args.out, 'second')) + \
-              ' --cmdline {}'.format(cmdline) + \
+              ' --kernel {}'.format(
+                  os.path.join(args.out, 'kernel' if image_info_list[0][1] > 0 else '/dev/null')) + \
+              ' --ramdisk {}'.format(
+                  os.path.join(args.out, 'ramdisk' if image_info_list[1][1] > 0 else '/dev/null')) + \
+              ' --second {}'.format(
+                  os.path.join(args.out, 'second' if image_info_list[2][1] > 0 else '/dev/null')) + \
+              ' --cmdline "{}"'.format(cmdline) + \
               ' --base 0x{:08x}'.format(base_addr) + \
               ' --kernel_offset 0x{:08x}'.format(mkbootimg_kernel_offset) + \
               ' --ramdisk_offset 0x{:08x}'.format(mkbootimg_ramdisk_offset) + \
               ' --second_offset 0x{:08x}'.format(mkbootimg_second_offset) + \
               ' --os_version {}.{}.{}'.format(major, minor, patch) + \
               ' --tags_offset 0x{:08x}'.format(mkbootimg_tags_offset) + \
+              ' --board "{}"'.format(product_name) + \
               ' --pagesize {}'.format(page_size) + \
               ' --out {}'.format(os.path.join(args.out, 'boot'))
     print(command)
