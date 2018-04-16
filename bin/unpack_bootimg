@@ -62,25 +62,25 @@ def unpack_bootimage(args):
     base_addr = kernel_ramdisk_second_info[1] - 0x00008000
     print('base addr: 0x{:08x}'.format(base_addr))
 
-    kernel_offset = kernel_ramdisk_second_info[1] - base_addr
+    mkbootimg_kernel_offset = kernel_ramdisk_second_info[1] - base_addr
     print('kernel_size: {}'.format(kernel_ramdisk_second_info[0]))
     print('kernel load address: {}'.format(kernel_ramdisk_second_info[1]))
-    print('kernel offset: 0x{:08x}'.format(kernel_offset))
+    print('kernel offset: 0x{:08x}'.format(mkbootimg_kernel_offset))
 
-    ramdisk_offset = kernel_ramdisk_second_info[3] - base_addr
+    mkbootimg_ramdisk_offset = kernel_ramdisk_second_info[3] - base_addr
     print('ramdisk size: {}'.format(kernel_ramdisk_second_info[2]))
     print('ramdisk load address: {}'.format(kernel_ramdisk_second_info[3]))
-    print('ramdisk offset: 0x{:08x}'.format(ramdisk_offset))
+    print('ramdisk offset: 0x{:08x}'.format(mkbootimg_ramdisk_offset))
 
-    second_offset = kernel_ramdisk_second_info[5] - base_addr
+    mkbootimg_second_offset = kernel_ramdisk_second_info[5] - base_addr
     print('second bootloader size: {}'.format(kernel_ramdisk_second_info[4]))
     print('second bootloader load address: {}'.format(
         kernel_ramdisk_second_info[5]))
-    print('second bootloader offset: 0x{:08x}'.format(second_offset))
+    print('second bootloader offset: 0x{:08x}'.format(mkbootimg_second_offset))
 
-    tags_offset = kernel_ramdisk_second_info[6] - base_addr
+    mkbootimg_tags_offset = kernel_ramdisk_second_info[6] - base_addr
     print('kernel tags load address: {}'.format(kernel_ramdisk_second_info[6]))
-    print('kernel tags offset: 0x{:08x}'.format(tags_offset))
+    print('kernel tags offset: 0x{:08x}'.format(mkbootimg_tags_offset))
 
     print('page size: {}'.format(kernel_ramdisk_second_info[7]))
 
@@ -149,12 +149,28 @@ def unpack_bootimage(args):
         extract_image(image_info[0], image_info[1], args.boot_img,
                       os.path.join(args.out, image_info[2]))
 
+    # Print mkbootimg command
+    command = 'mkbootimg' + \
+              ' --kernel {}'.format(os.path.join(args.out, 'kernel')) + \
+              ' --ramdisk {}'.format(os.path.join(args.out, 'ramdisk')) + \
+              ' --second {}'.format(os.path.join(args.out, 'second')) + \
+              ' --cmdline {}'.format(cmdline) + \
+              ' --base 0x{:08x}'.format(base_addr) + \
+              ' --kernel_offset 0x{:08x}'.format(mkbootimg_kernel_offset) + \
+              ' --ramdisk_offset 0x{:08x}'.format(mkbootimg_ramdisk_offset) + \
+              ' --second_offset 0x{:08x}'.format(mkbootimg_second_offset) + \
+              ' --os_version {}.{}.{}'.format(major, minor, patch) + \
+              ' --tags_offset 0x{:08x}'.format(mkbootimg_tags_offset) + \
+              ' --pagesize {}'.format(page_size) + \
+              ' --out {}'.format(os.path.join(args.out, 'boot'))
+    print(command)
+
 
 def parse_cmdline():
     """parse command line arguments"""
     parser = ArgumentParser(
         description='Unpacks boot.img/recovery.img, extracts the kernel,'
-        'ramdisk, second bootloader and recovery dtbo')
+                    'ramdisk, second bootloader and recovery dtbo')
     parser.add_argument(
         '--boot_img',
         help='path to boot image',
