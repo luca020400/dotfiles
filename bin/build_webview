@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
-chromium_version="64.0.3282.137"
-chromium_code="3282137"
+chromium_version="66.0.3359.139"
+chromium_code="3359139"
 clean=0
 gsync=0
 supported_archs=(arm arm64 x86 x64)
@@ -38,7 +38,7 @@ build() {
     fi
     build_args+=' android_default_version_code="'$code'"'
 
-    echo gn gen "out/$1" --args=\'$build_args\'
+    gn gen "out/$1" --args=$build_args
     ninja -C out/$1 system_webview_apk
     if [ "$?" -eq 0 ]; then
         [ "$1" '==' "x64" ] && android_arch="x86_64" || android_arch=$1

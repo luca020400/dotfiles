@@ -1,0 +1,11 @@
+#!/bin/bash
+
+if [ -z $1 ]; then
+    exit
+fi
+
+./development/tools/repo_pull/repo_pull.py \
+    pull -p pick -j $(nproc) \
+    -g https://android-review.googlesource.com \
+    -b master \
+    $1
