@@ -46,6 +46,8 @@ export CCACHE_DIR=$HOME/.ccache
 export CCACHE_EXEC=/usr/bin/ccache
 export USE_CCACHE=1
 
+export FLEX_EXEC=$HOME/android/flex-2.5.39
+
 export EDITOR=mcedit
 export GOPATH=$HOME/.go
 export PATH="$HOME/bin:$HOME/android/sdk/build-tools/25.0.2:$HOME/.gem/ruby/2.5.0/bin:$HOME/.local/bin:/usr/lib/ccache/bin:$PATH"
@@ -56,7 +58,7 @@ export JAVA_HOME=/usr/lib/jvm/java-8-openjdk
 alias clipboard='xclip -se c'
 alias nano='mcedit'
 alias venv=". $HOME/android/venv/bin/activate"
-alias pacman='pacaur --color=auto'
+alias pacman='yay'
 alias wget='wget -c'
 alias scrot='scrot -c -d 3'
 alias dlmusic='youtube-dl --extract-audio --audio-format mp3 --audio-quality 0'
