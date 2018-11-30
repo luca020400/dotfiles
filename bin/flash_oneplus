@@ -1,0 +1,20 @@
+#!/bin/bash
+
+images=(
+aop
+bluetooth
+dsp
+dtbo
+fw_4j1ed
+fw_4u1ea
+LOGO
+modem
+qupfw
+vendor
+storsec
+)
+
+for image in "${images[@]}"; do
+    fastboot flash ${image}_a $image.img
+    fastboot flash ${image}_b $image.img
+done

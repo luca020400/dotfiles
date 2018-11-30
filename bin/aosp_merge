@@ -1,0 +1,41 @@
+#!/bin/bash
+
+. build/envsetup.sh
+
+OLDTAG="${1}"
+NEWTAG="${2}"
+SQUASH="${3}"
+
+TOP="${ANDROID_BUILD_TOP}"
+MERGEDREPOS="${TOP}/merged_repos.txt"
+MANIFEST="${TOP}/.repo/manifest.xml"
+BRANCH=$(grep "default revision" "${MANIFEST}" \
+        | sed 's/^ *//g;s/<default revision=\"refs\/heads\///g;s/\"//g')
+STAGINGBRANCH="${BRANCH}-${NEWTAG}"
+
+# Build list of LineageOS forked repos
+PROJECTPATHS=$(grep "name=\"LineageOS/" "${MANIFEST}" | sed -n 's/.*path="\([^"]\+\)".*/\1/p' | grep -v chromium-webview | grep -v build-tools)
+
+repo abandon "${STAGINGBRANCH}"
+
+# Iterate over each forked project
+for PROJECTPATH in ${PROJECTPATHS}; do
+    cd "${TOP}/${PROJECTPATH}"
+    repo start "${STAGINGBRANCH}" .
+    aospremote | grep -v "Remote 'aosp' created"
+    git fetch -q --tags aosp "${NEWTAG}"
+
+    echo "#### Merging ${NEWTAG} into ${PROJECTPATH} ####"
+    if [ ! -z $SQUASH ]; then
+        git merge --no-edit --log --squash "${NEWTAG}"
+    else
+        git merge --no-edit --log "${NEWTAG}"
+    fi
+
+    CONFLICT=""
+    if [[ -n "$(git status --porcelain)" ]]; then
+        CONFLICT="conflict-"
+    fi
+    echo -e "${CONFLICT}${PROJECTOPERATION}\t\t${PROJECTPATH}" | tee -a "${MERGEDREPOS}"
+    read
+done

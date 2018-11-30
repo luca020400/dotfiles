@@ -1,0 +1,10 @@
+#!/bin/bash
+
+. build/envsetup.sh
+
+# WLAN in system
+repopick 219936
+repopick 219952
+
+# tri-state-key
+repopick 219630 220369

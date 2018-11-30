@@ -1,0 +1,31 @@
+#!/bin/bash
+
+. build/envsetup.sh
+
+TOP="${ANDROID_BUILD_TOP}"
+MERGEDREPOS="${TOP}/merged_repos.txt"
+MANIFEST="${TOP}/.repo/manifest.xml"
+BRANCH=$(grep "default revision" "${MANIFEST}" \
+        | sed 's/^ *//g;s/<default revision=\"refs\/heads\///g;s/\"//g')
+STAGINGBRANCH="${BRANCH}-gsi"
+
+# Build list of LineageOS forked repos
+PROJECTPATHS=$(grep "name=\"LineageOS/" "${MANIFEST}" | sed -n 's/.*path="\([^"]\+\)".*/\1/p' | grep -v chromium-webview | grep -v build-tools)
+
+repo abandon "${STAGINGBRANCH}"
+
+# Iterate over each forked project
+for PROJECTPATH in ${PROJECTPATHS}; do
+    cd "${TOP}/${PROJECTPATH}"
+    repo start "${STAGINGBRANCH}" .
+    aospremote | grep -v "Remote 'aosp' created"
+    git fetch -q --tags aosp pie-gsi
+
+    git merge --no-edit --log aosp/pie-gsi
+
+    CONFLICT=""
+    if [[ -n "$(git status --porcelain)" ]]; then
+        CONFLICT="conflict-"
+    fi
+    echo -e "${CONFLICT}${PROJECTOPERATION}\t\t${PROJECTPATH}" | tee -a "${MERGEDREPOS}"
+done

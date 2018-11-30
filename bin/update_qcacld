@@ -1,0 +1,16 @@
+#!/bin/bash
+
+repos=(
+qcacld-3.0
+qca-wifi-host-cmn
+fw-api
+)
+
+for repo in "${repos[@]}"; do
+    path=drivers/staging/$repo
+    if [ -d $path ]; then
+        git subtree pull --prefix drivers/staging/$repo https://source.codeaurora.org/quic/la/platform/vendor/qcom-opensource/wlan/$repo $1
+    else
+        git subtree add --prefix drivers/staging/$repo https://source.codeaurora.org/quic/la/platform/vendor/qcom-opensource/wlan/$repo $1
+    fi
+done
