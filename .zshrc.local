@@ -62,6 +62,7 @@ alias pacman='yay'
 alias wget='wget -c'
 alias scrot='scrot -c -d 3'
 alias dlmusic='youtube-dl --extract-audio --audio-format mp3 --audio-quality 0'
+alias flashall='fastboot --skip-reboot flashall'
 
 zstyle ':completion:*' rehash true
 
@@ -77,3 +78,9 @@ bindkey "$terminfo[kcud1]" history-substring-search-down
 
 # sh word split behaviour
 setopt shwordsplit
+
+# always check provided pattern
+unsetopt nomatch
+
+# kill sad-smiley
+zstyle ':prompt:grml:right:setup' items ''
