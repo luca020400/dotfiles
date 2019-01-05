@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
-chromium_version="69.0.3497.109"
-chromium_code="3497109"
+chromium_version="71.0.3578.99"
+chromium_code="3578099"
 clean=0
 gsync=0
 supported_archs=(arm arm64 x86 x64)
@@ -91,7 +91,7 @@ fi
 export PATH="$(pwd -P)/depot_tools:$PATH"
 
 if [ ! -d src ]; then
-    fetch --nohooks android
+    fetch android
 fi
 
 if [ $gsync -eq 1 ]; then
@@ -119,9 +119,9 @@ args+=' is_debug=false'
 args+=' is_official_build=true'
 args+=' is_chrome_branded=false'
 args+=' use_official_google_api_keys=false'
-args+=' enable_resource_whitelist_generation=true'
 args+=' ffmpeg_branding="Chrome"'
 args+=' proprietary_codecs=true'
+args+=' enable_resource_whitelist_generation=false'
 args+=' enable_remoting=true'
 args+=' is_component_build=false'
 args+=' symbol_level=0'

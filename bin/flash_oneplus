@@ -1,20 +1,29 @@
 #!/bin/bash
 
 images=(
+abl
 aop
 bluetooth
+cmnlib64
+cmnlib
+devcfg
 dsp
-dtbo
 fw_4j1ed
 fw_4u1ea
+hyp
+keymaster
 LOGO
 modem
 qupfw
-vendor
 storsec
+tz
+vendor
+xbl
+xbl_config
 )
 
 for image in "${images[@]}"; do
     fastboot flash ${image}_a $image.img
     fastboot flash ${image}_b $image.img
 done
+fastboot flash oem_stanvbk oem_stanvbk.img

@@ -11,7 +11,6 @@ mkdir -p ~/ziptempdir
 unzip $1 -d ~/ziptempdir 2> /dev/null
 cd ~/ziptempdir
 
-adb shell setenforce 0
 adb shell rm -rf /sdcard/tmp/ 2> /dev/null
 adb shell mkdir /sdcard/tmp/
 adb push . /sdcard/tmp/

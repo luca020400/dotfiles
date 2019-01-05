@@ -7,7 +7,6 @@ NEWTAG="${2}"
 SQUASH="${3}"
 
 TOP="${ANDROID_BUILD_TOP}"
-MERGEDREPOS="${TOP}/merged_repos.txt"
 MANIFEST="${TOP}/.repo/manifest.xml"
 BRANCH=$(grep "default revision" "${MANIFEST}" \
         | sed 's/^ *//g;s/<default revision=\"refs\/heads\///g;s/\"//g')
@@ -36,6 +35,6 @@ for PROJECTPATH in ${PROJECTPATHS}; do
     if [[ -n "$(git status --porcelain)" ]]; then
         CONFLICT="conflict-"
     fi
-    echo -e "${CONFLICT}${PROJECTOPERATION}\t\t${PROJECTPATH}" | tee -a "${MERGEDREPOS}"
+    echo -e "${CONFLICT}${PROJECTOPERATION}\t\t${PROJECTPATH}"
     read
 done

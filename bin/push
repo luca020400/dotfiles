@@ -1,6 +1,7 @@
 #!/bin/bash
 
 function push_impl() {
+    adb shell rm -rf /system/$1
     adb push $1 /system/$1
     adb shell restorecon -R /system/$1
 }
