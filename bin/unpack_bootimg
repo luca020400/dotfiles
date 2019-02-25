@@ -98,7 +98,7 @@ def unpack_bootimage(args):
     year = ((os_version >> 4) & 0x7f) + 2000
     month = (os_version >> 0) & 0xf
     print('os version {}.{}.{}'.format(major, minor, patch))
-    print('os patch level {}-{}'.format(year, month))
+    print('os patch level {}-{:02d}'.format(year, month))
 
     product_name = unpack('16s', args.boot_img.read(16))[0].decode()
     print('product name: {}'.format(product_name))
@@ -172,7 +172,7 @@ def unpack_bootimage(args):
               ' --ramdisk_offset 0x{:08x}'.format(mkbootimg_ramdisk_offset) + \
               ' --second_offset 0x{:08x}'.format(mkbootimg_second_offset) + \
               ' --os_version {}.{}.{}'.format(major, minor, patch) + \
-              ' --os_patch_level {}-{}'.format(year, month) + \
+              ' --os_patch_level {}-{:02d}'.format(year, month) + \
               ' --tags_offset 0x{:08x}'.format(mkbootimg_tags_offset) + \
               ' --board "{}"'.format(product_name) + \
               ' --pagesize {}'.format(page_size)
