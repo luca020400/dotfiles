@@ -1,7 +1,0 @@
-#!/bin/bash
-
-for l in $@; do
-    adb shell rm -rf /tmp/*.zip
-    adb push $l /tmp/
-    adb shell twrp install /tmp/$(basename $l)
-done

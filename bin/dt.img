@@ -1,6 +1,0 @@
-#!/bin/bash
-
-DTB=$(find . -name "*.dtb" | head -1)
-[[ -z $DTB ]] && exit
-DTBDIR=$(dirname $DTB)
-dtbToolCM -o dt.img -s 2048 -p scripts/dtc/ $DTBDIR/

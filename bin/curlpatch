@@ -1,5 +1,0 @@
-#!/bin/bash
-
-for l in $@; do
-    curl $l.patch | patch -p1
-done
