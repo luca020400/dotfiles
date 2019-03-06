@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
-chromium_version="71.0.3578.99"
-chromium_code="3578099"
+chromium_version="72.0.3626.105"
+chromium_code=" 3626105"
 clean=0
 gsync=0
 supported_archs=(arm arm64 x86 x64)
@@ -128,12 +128,6 @@ args+=' symbol_level=0'
 args+=' enable_nacl=false'
 args+=' remove_webcore_debug_symbols=true'
 args+=' android_default_version_name="'$chromium_version'"'
-
-if [ -n "$USE_CCACHE" -a "$USE_CCACHE" -eq 1 ]; then
-    export CCACHE_CPP2=yes
-    export CCACHE_SLOPPINESS=time_macros
-    args+=' cc_wrapper="ccache"'
-fi
 
 # Setup environment
 [ $clean -eq 1 ] && rm -rf out

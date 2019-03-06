@@ -1,0 +1,15 @@
+#!/usr/bin/env python3
+
+import re
+import sys
+
+module_regex = re.compile("(?=)[ymn]")
+
+def process(config):
+    kind = module_regex.search(config).group()
+    name = config.replace("={}".format(kind), "")
+    print("config {}\n        bool\n        default {}\n".format(name, kind))
+
+with open(sys.argv[1]) as f:
+    for line in f:
+        process(line.strip().replace("CONFIG_", ""))

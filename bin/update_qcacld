@@ -13,4 +13,6 @@ for repo in "${repos[@]}"; do
     else
         git subtree add --prefix drivers/staging/$repo https://source.codeaurora.org/quic/la/platform/vendor/qcom-opensource/wlan/$repo $1
     fi
+    echo "Press enter"
+    read
 done

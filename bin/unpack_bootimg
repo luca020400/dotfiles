@@ -15,15 +15,14 @@
 
 """unpacks the bootimage.
 
-Extracts the kernel, ramdisk, second bootloader and recovery dtbo images.
+Extracts the kernel, ramdisk, second bootloader, dtb and recovery dtbo images.
 """
 
 from __future__ import print_function
-
-import mmap
-import os
 from argparse import ArgumentParser, FileType
 from struct import unpack
+import mmap
+import os
 
 
 def create_out_dir(dir_path):
@@ -34,8 +33,6 @@ def create_out_dir(dir_path):
 
 def extract_image(offset, size, bootimage, extracted_image_name):
     """extracts an image from the bootimage"""
-    if size == 0:
-        return
     bootimage.seek(offset)
     with open(extracted_image_name, 'wb') as file_out:
         file_out.write(bootimage.read(size))
@@ -43,7 +40,7 @@ def extract_image(offset, size, bootimage, extracted_image_name):
 
 def get_number_of_pages(image_size, page_size):
     """calculates the number of pages required for the image"""
-    return int((image_size + page_size - 1) / page_size)
+    return (image_size + page_size - 1) / page_size
 
 
 def get_android_magic_offset(bootimage):
@@ -52,44 +49,44 @@ def get_android_magic_offset(bootimage):
     return mm.find(b'ANDROID!')
 
 
-def entry_in_list(entry, list):
-    return entry in [x for v in list for x in v]
-
-
 def unpack_bootimage(args):
     """extracts kernel, ramdisk, second bootloader and recovery dtbo"""
     args.boot_img.seek(get_android_magic_offset(args.boot_img))
     boot_magic = unpack('8s', args.boot_img.read(8))[0]
-    print('boot_magic: {}'.format(boot_magic))
+    print('boot_magic: %s' % boot_magic)
+
     kernel_ramdisk_second_info = unpack('10I', args.boot_img.read(10 * 4))
 
-    base_addr = kernel_ramdisk_second_info[1] - 0x00008000
-    print('base addr: 0x{:08x}'.format(base_addr))
+    base_addr = kernel_ramdisk_second_info[1] - 0x8000
+    print('base addr: 0x%08x' % base_addr)
 
-    mkbootimg_kernel_offset = kernel_ramdisk_second_info[1] - base_addr
-    print('kernel_size: {}'.format(kernel_ramdisk_second_info[0]))
-    print('kernel load address: {}'.format(kernel_ramdisk_second_info[1]))
-    print('kernel offset: 0x{:08x}'.format(mkbootimg_kernel_offset))
+    kernel_size = kernel_ramdisk_second_info[0]
+    print('kernel_size: %d' % kernel_size)
+    print('kernel load address: %d' % kernel_ramdisk_second_info[1])
+    mk_kernel_offset = kernel_ramdisk_second_info[1] - base_addr
+    print('kernel offset: 0x%08x' % mk_kernel_offset)
 
-    mkbootimg_ramdisk_offset = kernel_ramdisk_second_info[3] - base_addr
-    print('ramdisk size: {}'.format(kernel_ramdisk_second_info[2]))
-    print('ramdisk load address: {}'.format(kernel_ramdisk_second_info[3]))
-    print('ramdisk offset: 0x{:08x}'.format(mkbootimg_ramdisk_offset))
+    ramdisk_size = kernel_ramdisk_second_info[2]
+    print('ramdisk size: %d' % ramdisk_size)
+    print('ramdisk load address: %d' % kernel_ramdisk_second_info[3])
+    mk_ramdisk_offset = kernel_ramdisk_second_info[3] - base_addr
+    print('ramdisk offset: 0x%08x' % mk_ramdisk_offset)
 
-    mkbootimg_second_offset = kernel_ramdisk_second_info[5] - base_addr
-    print('second bootloader size: {}'.format(kernel_ramdisk_second_info[4]))
-    print('second bootloader load address: {}'.format(
-        kernel_ramdisk_second_info[5]))
-    print('second bootloader offset: 0x{:08x}'.format(mkbootimg_second_offset))
+    second_size = kernel_ramdisk_second_info[4]
+    print('second bootloader size: %d' % second_size)
+    print('second bootloader load address: %d' % kernel_ramdisk_second_info[5])
+    mk_second_offset = kernel_ramdisk_second_info[5] - base_addr
+    print('second offset: 0x%08x' % mk_second_offset)
 
-    mkbootimg_tags_offset = kernel_ramdisk_second_info[6] - base_addr
-    print('kernel tags load address: {}'.format(kernel_ramdisk_second_info[6]))
-    print('kernel tags offset: 0x{:08x}'.format(mkbootimg_tags_offset))
+    print('kernel tags load address: %d' % kernel_ramdisk_second_info[6])
+    mk_tags_offset = kernel_ramdisk_second_info[6] - base_addr
+    print('kernel tags offset: 0x%08x' % mk_tags_offset)
 
-    print('page size: {}'.format(kernel_ramdisk_second_info[7]))
+    page_size = kernel_ramdisk_second_info[7]
+    print('page size: %d' % page_size)
 
-    print('boot image header version: {}'.format(
-        kernel_ramdisk_second_info[8]))
+    version = kernel_ramdisk_second_info[8]
+    print('boot image header version: %d' % version)
 
     os_version = kernel_ramdisk_second_info[9]
     major = (os_version >> 25) & 0x7f
@@ -97,62 +94,68 @@ def unpack_bootimage(args):
     patch = (os_version >> 11) & 0x7f
     year = ((os_version >> 4) & 0x7f) + 2000
     month = (os_version >> 0) & 0xf
-    print('os version {}.{}.{}'.format(major, minor, patch))
-    print('os patch level {}-{}'.format(year, month))
+    day = 5  # Sane default
+    print('os version %d.%d.%d' % (major, minor, patch))
+    print('os patch level %d-%02d-%02d' % (year, month, day))
 
-    product_name = unpack('16s', args.boot_img.read(16))[0].decode()
-    print('product name: {}'.format(product_name))
-    cmdline = unpack('512s', args.boot_img.read(512))[0].decode()
-    print('command line args: {}'.format(cmdline))
+    product_name = unpack('16s', args.boot_img.read(16))
+    print('product name: %s' % product_name)
+    cmdline = unpack('512s', args.boot_img.read(512))
+    print('command line args: %s' % cmdline)
 
     args.boot_img.read(32)  # ignore SHA
 
-    extra_cmdline = unpack('1024s', args.boot_img.read(1024))[0].decode()
-    print('additional command line args: {}'.format(extra_cmdline))
+    extra_cmdline = unpack('1024s', args.boot_img.read(1024))
+    print('additional command line args: %s' % extra_cmdline)
 
-    kernel_size = kernel_ramdisk_second_info[0]
-    ramdisk_size = kernel_ramdisk_second_info[2]
-    second_size = kernel_ramdisk_second_info[4]
-    page_size = kernel_ramdisk_second_info[7]
-    version = kernel_ramdisk_second_info[8]
     if version > 0:
         recovery_dtbo_size = unpack('I', args.boot_img.read(1 * 4))[0]
-        print('recovery dtbo size: {}'.format(recovery_dtbo_size))
-        recovery_dtbo_address = unpack('Q', args.boot_img.read(8))[0]
-        print('recovery dtbo load address: {}'.format(recovery_dtbo_address))
+        print('recovery dtbo size: %d' % recovery_dtbo_size)
+        recovery_dtbo_offset = unpack('Q', args.boot_img.read(8))[0]
+        print('recovery dtbo offset: %d' % recovery_dtbo_offset)
         boot_header_size = unpack('I', args.boot_img.read(4))[0]
-        print('boot header size: {}'.format(boot_header_size))
-        mkbootimg_recovery_dtbo_offset = recovery_dtbo_address - base_addr
+        print('boot header size: %d' % boot_header_size)
     else:
         recovery_dtbo_size = 0
+    if version > 1:
+        dtb_size = unpack('I', args.boot_img.read(4))[0]
+        print('dtb size: %d' % dtb_size)
+        dtb_load_address = unpack('Q', args.boot_img.read(8))[0]
+        print('dtb load address: %d' % dtb_load_address)
+        mk_dtb_offset = dtb_load_address - base_addr
+        print('dtb offset: 0x%08x' % mk_dtb_offset)
+    else:
+        dtb_size = 0
 
     # The first page contains the boot header
     num_header_pages = 1
 
-    image_info_list = []
     num_kernel_pages = get_number_of_pages(kernel_size, page_size)
     kernel_offset = page_size * num_header_pages  # header occupies a page
-    if kernel_size > 0:
-        image_info_list.append((kernel_offset, kernel_size, 'kernel'))
+    image_info_list = [(kernel_offset, kernel_size, 'kernel')]
 
     num_ramdisk_pages = get_number_of_pages(ramdisk_size, page_size)
     ramdisk_offset = page_size * (num_header_pages + num_kernel_pages
                                   )  # header + kernel
-    if ramdisk_size > 0:
-        image_info_list.append((ramdisk_offset, ramdisk_size, 'ramdisk'))
+    image_info_list.append((ramdisk_offset, ramdisk_size, 'ramdisk'))
 
-    num_second_pages = get_number_of_pages(second_size, page_size)
     second_offset = page_size * (
             num_header_pages + num_kernel_pages + num_ramdisk_pages
     )  # header + kernel + ramdisk
-    if second_size > 0:
-        image_info_list.append((second_offset, second_size, 'second'))
+    image_info_list.append((second_offset, second_size, 'second'))
 
     if recovery_dtbo_size > 0:
-        dtbo_offset = page_size * (num_header_pages + num_kernel_pages +
-                                   num_ramdisk_pages + num_second_pages)
-        image_info_list.append((dtbo_offset, recovery_dtbo_size,
+        image_info_list.append((recovery_dtbo_offset, recovery_dtbo_size,
                                 'recovery_dtbo'))
+    if dtb_size > 0:
+        num_second_pages = get_number_of_pages(second_size, page_size)
+        num_recovery_dtbo_pages = get_number_of_pages(recovery_dtbo_size, page_size)
+        dtb_offset = page_size * (
+                num_header_pages + num_kernel_pages + num_ramdisk_pages + num_second_pages +
+                num_recovery_dtbo_pages
+        )
+
+        image_info_list.append((dtb_offset, dtb_size, 'dtb'))
 
     for image_info in image_info_list:
         extract_image(image_info[0], image_info[1], args.boot_img,
@@ -160,32 +163,30 @@ def unpack_bootimage(args):
 
     # Print mkbootimg command
     command = 'mkbootimg' + \
-              ' --kernel {}'.format(
-                  os.path.join(args.out, 'kernel' if entry_in_list('kernel', image_info_list) else '/dev/null')) + \
-              ' --ramdisk {}'.format(
-                  os.path.join(args.out, 'ramdisk' if entry_in_list('ramdisk', image_info_list) else '/dev/null')) + \
-              ' --second {}'.format(
-                  os.path.join(args.out, 'second' if entry_in_list('second', image_info_list) else '/dev/null')) + \
-              ' --cmdline "{}"'.format(cmdline) + \
-              ' --base 0x{:08x}'.format(base_addr) + \
-              ' --kernel_offset 0x{:08x}'.format(mkbootimg_kernel_offset) + \
-              ' --ramdisk_offset 0x{:08x}'.format(mkbootimg_ramdisk_offset) + \
-              ' --second_offset 0x{:08x}'.format(mkbootimg_second_offset) + \
-              ' --os_version {}.{}.{}'.format(major, minor, patch) + \
-              ' --os_patch_level {}-{}'.format(year, month) + \
-              ' --tags_offset 0x{:08x}'.format(mkbootimg_tags_offset) + \
-              ' --board "{}"'.format(product_name) + \
-              ' --pagesize {}'.format(page_size)
+              ' --kernel %s' % os.path.join(args.out, 'kernel' if kernel_size > 0 else '/dev/null') + \
+              ' --ramdisk %s' % os.path.join(args.out, 'ramdisk' if ramdisk_size > 0 else '/dev/null') + \
+              ' --second %s' % os.path.join(args.out, 'second' if second_size > 0 else '/dev/null') + \
+              ' --cmdline "%s"' % cmdline + \
+              ' --base 0x%08x' % base_addr + \
+              ' --kernel_offset 0x%08x' % mk_kernel_offset + \
+              ' --ramdisk_offset 0x%08x' % mk_ramdisk_offset + \
+              ' --second_offset 0x%08x' % mk_second_offset + \
+              ' --os_version %d.%d.%d' % (major, minor, patch) + \
+              ' --os_patch_level %d-%02d-%02d' % (year, month, day) + \
+              ' --tags_offset 0x%08x' % mk_tags_offset + \
+              ' --board "%s"' % product_name + \
+              ' --pagesize %d' % page_size
 
-    if version > 0:
-        command += '' + \
-                   ' --recovery_dtbo {}'.format(
-                       os.path.join(args.out, 'recovery_dtbo' if entry_in_list('recovery_dtbo',
-                                                                               image_info_list) else '/dev/null')) + \
-                   ' --recovery_dtbo_offset 0x{:08x}'.format(mkbootimg_recovery_dtbo_offset) + \
-                   ' --header_version {}'.format(version)
+    if version > 0 and recovery_dtbo_size > 0:
+        command += ' --recovery_dtbo %s' % os.path.join(args.out, 'recovery_dtbo') + \
+                   ' --recovery_dtbo_offset %s' % recovery_dtbo_offset
 
-    command += ' --out {}'.format(os.path.join(args.out, 'boot'))
+    if version > 1 and dtb_size > 0:
+        command += ' --dtb %s' % os.path.join(args.out, 'dtb') + \
+                   ' --dtb 0x%08x' % mk_dtb_offset
+
+    command += ' --header_version %s' % version + \
+               ' --out %s' % os.path.join(args.out, 'boot')
 
     print(command)
 
@@ -194,7 +195,7 @@ def parse_cmdline():
     """parse command line arguments"""
     parser = ArgumentParser(
         description='Unpacks boot.img/recovery.img, extracts the kernel,'
-                    'ramdisk, second bootloader and recovery dtbo')
+                    'ramdisk, second bootloader, recovery dtbo and dtb')
     parser.add_argument(
         '--boot_img',
         help='path to boot image',
