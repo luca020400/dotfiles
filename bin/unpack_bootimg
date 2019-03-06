@@ -178,12 +178,11 @@ def unpack_bootimage(args):
               ' --pagesize %d' % page_size
 
     if version > 0 and recovery_dtbo_size > 0:
-        command += ' --recovery_dtbo %s' % os.path.join(args.out, 'recovery_dtbo') + \
-                   ' --recovery_dtbo_offset %s' % recovery_dtbo_offset
+        command += ' --recovery_dtbo %s' % os.path.join(args.out, 'recovery_dtbo')
 
     if version > 1 and dtb_size > 0:
         command += ' --dtb %s' % os.path.join(args.out, 'dtb') + \
-                   ' --dtb 0x%08x' % mk_dtb_offset
+                   ' --dtb_offset 0x%08x' % mk_dtb_offset
 
     command += ' --header_version %s' % version + \
                ' --out %s' % os.path.join(args.out, 'boot')
