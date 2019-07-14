@@ -187,7 +187,8 @@ def unpack_bootimage(args):
     command += ' --header_version %s' % version + \
                ' --out %s' % os.path.join(args.out, 'boot')
 
-    print(command)
+    with open(os.path.join(args.out, 'command'), 'w') as command_out:
+        command_out.write("%s\n" % command)
 
 
 def parse_cmdline():

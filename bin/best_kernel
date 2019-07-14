@@ -28,14 +28,14 @@ def run_subprocess(cmd):
     return comm
 
 
-def get_tags(tag_name):
-    cmd = "git tag -l %s" % tag_name
+def get_commit_ids(depth):
+    cmd = "git log --no-merges --skip=1 --pretty=format:\"%%h\" -n %s" % depth
     comm = run_subprocess(cmd)
     return comm[0].strip("\n").split("\n")
 
 
-def get_total_changes(tag_name):
-    cmd = "git diff %s --shortstat" % tag_name
+def get_total_changes(change_id):
+    cmd = "git diff %s --shortstat" % change_id
     comm = run_subprocess(cmd)
     try:
         a, d = comm[0].split(",")[1:]
@@ -48,9 +48,9 @@ def get_total_changes(tag_name):
     return total
 
 
-def worker(tag_name):
-    tc = get_total_changes(tag_name)
-    worker.q.put((tag_name, tc))
+def worker(change_id):
+    tc = get_total_changes(change_id)
+    worker.q.put((change_id, tc))
 
 
 def worker_init(q):
@@ -71,11 +71,11 @@ def background(q, e, s):
                 print("%s has %d lines changed" % (tn, tc))
             if best > tc:
                 best = tc
-                tag = tn
+                commit_id = tn
                 if not s:
                     print("%s is the new best match with %d lines changed" % (tn, tc))
     print("Best match")
-    print("TAG: %s" % tag)
+    print("Commit ID: %s" % commit_id)
     print("Lines changed: %d" % best)
 
 
@@ -86,16 +86,16 @@ def main():
                         metavar="N", help="number of jobs to run at once")
     parser.add_argument("-s", action="store_true", dest="silent", default=False,
                         help="reduce the verbosity of the output")
-    parser.add_argument("tag_name", metavar="<Tag Name>",
-                       help="tag name to search for (can contain wildcards)")
+    parser.add_argument("depth", metavar="<Depth>",
+                       help="How many commits we go deep")
     args = parser.parse_args()
 
-    tags = get_tags(args.tag_name)
-    if not tags:
-        print("No tags to check. bailing.")
+    commit_ids = get_commit_ids(args.depth)
+    if not commit_ids:
+        print("No commit ids to check. bailing.")
         sys.exit(1)
     if not args.silent:
-        print("number of tags to check: %d" % len(tags))
+        print("number of commit ids to check: %d" % len(commit_ids))
 
     queue = Queue()
     event = Event()
@@ -104,7 +104,7 @@ def main():
     b.start()
 
     pool = Pool(args.jobs, worker_init, [queue])
-    pool.map(worker, tags)
+    pool.map(worker, commit_ids)
 
     pool.close()
     pool.join()

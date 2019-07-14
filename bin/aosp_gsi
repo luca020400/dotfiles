@@ -2,15 +2,21 @@
 
 . build/envsetup.sh
 
+PLATFORM="${1}"
+SQUASH="${2}"
+
 TOP="${ANDROID_BUILD_TOP}"
-MERGEDREPOS="${TOP}/merged_repos.txt"
 MANIFEST="${TOP}/.repo/manifest.xml"
 BRANCH=$(grep "default revision" "${MANIFEST}" \
         | sed 's/^ *//g;s/<default revision=\"refs\/heads\///g;s/\"//g')
-STAGINGBRANCH="${BRANCH}-gsi"
+STAGINGBRANCH="${BRANCH}-${PLATFORM}-gsi"
 
 # Build list of LineageOS forked repos
-PROJECTPATHS=$(grep "name=\"LineageOS/" "${MANIFEST}" | sed -n 's/.*path="\([^"]\+\)".*/\1/p' | grep -v chromium-webview | grep -v build-tools)
+PROJECTBLACKLIST="Gallery2"
+PROJECTPATHS=$(grep "name=\"LineageOS/" "${MANIFEST}" \
+        | grep -v "clone-depth=\"1\"" \
+        | egrep -v ${PROJECTBLACKLIST} \
+        | sed -n 's/.*path="\([^"]\+\)".*/\1/p')
 
 repo abandon "${STAGINGBRANCH}"
 
@@ -19,13 +25,19 @@ for PROJECTPATH in ${PROJECTPATHS}; do
     cd "${TOP}/${PROJECTPATH}"
     repo start "${STAGINGBRANCH}" .
     aospremote | grep -v "Remote 'aosp' created"
-    git fetch -q --tags aosp pie-gsi
+    git fetch -q aosp "${PLATFORM}"-gsi
 
-    git merge --no-edit --log aosp/pie-gsi
-
-    CONFLICT=""
-    if [[ -n "$(git status --porcelain)" ]]; then
-        CONFLICT="conflict-"
+    echo "#### Merging ${PLATFORM} into ${PROJECTPATH} ####"
+    if [ ! -z $SQUASH ]; then
+        git merge --log --squash aosp/"${PLATFORM}"-gsi
+        if [ $? -eq 1 ]; then read; fi
+        if ! git diff --cached --exit-code > /dev/null; then
+            git commit --no-edit
+            OLD_MSG=$(git log --format=%B -n1)
+            git commit --amend -m "[DNM] Squash of ${STAGINGBRANCH}" -m "$OLD_MSG"
+        fi
+    else
+        git merge --log aosp/"${PLATFORM}"-gsi
+        if [ $? -eq 1 ]; then read; fi
     fi
-    echo -e "${CONFLICT}${PROJECTOPERATION}\t\t${PROJECTPATH}" | tee -a "${MERGEDREPOS}"
 done

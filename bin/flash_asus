@@ -1,0 +1,27 @@
+#!/bin/bash
+
+images=(
+abl
+aop
+asusfw
+bluetooth
+cmnlib64
+cmnlib
+devcfg
+dsp
+hyp
+keymaster
+modem
+qupfw
+tz
+uefisecapp
+vendor
+xbl
+xbl_config
+xrom
+)
+
+for image in "${images[@]}"; do
+    fastboot flash ${image}_a $image.img
+    fastboot flash ${image}_b $image.img
+done

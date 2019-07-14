@@ -139,6 +139,6 @@ if [ -n "$build_arch" ]; then
 else
     build arm
     build arm64
-    build x86
-    build x64
+    #build x86
+    #build x64
 fi
