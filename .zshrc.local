@@ -48,8 +48,6 @@ export USE_CCACHE=1
 
 export SKIP_ABI_CHECKS=true
 
-export FLEX_EXEC=$HOME/android/flex-2.5.39
-
 export EDITOR=mcedit
 export GOPATH=$HOME/.go
 export PATH="$HOME/bin:$HOME/.gem/ruby/2.6.0/bin:$PATH"
@@ -59,12 +57,7 @@ export JAVA_HOME=/usr/lib/jvm/java-8-openjdk
 
 alias clipboard='xclip -se c'
 alias nano='mcedit'
-alias venv=". $HOME/android/venv/bin/activate"
 alias pacman='yay'
-alias wget='wget -c'
-alias scrot='scrot -c -d 3'
-alias dlmusic='youtube-dl --extract-audio --audio-format mp3 --audio-quality 0'
-alias flashall='fastboot --skip-reboot flashall'
 
 zstyle ':completion:*' rehash true
 

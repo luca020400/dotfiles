@@ -431,11 +431,22 @@ ZSH_NO_DEFAULT_LOCALE=${ZSH_NO_DEFAULT_LOCALE:-0}
 
 typeset -ga ls_options
 typeset -ga grep_options
+
+# Colors on GNU ls(1)
 if ls --color=auto / >/dev/null 2>&1; then
     ls_options+=( --color=auto )
+# Colors on FreeBSD and OSX ls(1)
 elif ls -G / >/dev/null 2>&1; then
     ls_options+=( -G )
 fi
+
+# Natural sorting order on GNU ls(1)
+# OSX and IllumOS have a -v option that is not natural sorting
+if ls --version |& grep -q 'GNU' >/dev/null 2>&1 && ls -v / >/dev/null 2>&1; then
+    ls_options+=( -v )
+fi
+
+# Color on GNU and FreeBSD grep(1)
 if grep --color=auto -q "a" <<< "a" >/dev/null 2>&1; then
     grep_options+=( --color=auto )
 fi
@@ -659,7 +670,10 @@ fi
 # completion system
 COMPDUMPFILE=${COMPDUMPFILE:-${ZDOTDIR:-${HOME}}/.zcompdump}
 if zrcautoload compinit ; then
-    compinit -d ${COMPDUMPFILE} || print 'Notice: no compinit available :('
+    typeset -a tmp
+    zstyle -a ':grml:completion:compinit' arguments tmp
+    compinit -d ${COMPDUMPFILE} "${tmp[@]}" || print 'Notice: no compinit available :('
+    unset tmp
 else
     print 'Notice: no compinit available :('
     function compdef { }
@@ -1087,7 +1101,7 @@ function help-show-abk () {
 
 zle -N help-show-abk
 
-# press "ctrl-e d" to insert the actual date in the form yyyy-mm-dd
+# press "ctrl-x d" to insert the actual date in the form yyyy-mm-dd
 function insert-datestamp () { LBUFFER+=${(%):-'%D{%Y-%m-%d}'}; }
 zle -N insert-datestamp
 
@@ -1186,7 +1200,7 @@ function help_zle_parse_keybindings () {
         [[ $load_cache -eq 0 ]] && . $HELP_ZLE_CACHE_FILE && return
     fi
 
-    #fill with default keybindings, possibly to be overwriten in a file later
+    #fill with default keybindings, possibly to be overwritten in a file later
     #Note that due to zsh inconsistency on escaping assoc array keys, we encase the key in '' which we will remove later
     local -A help_zle_keybindings
     help_zle_keybindings['<Ctrl>@']="set MARK"
@@ -1208,7 +1222,7 @@ function help_zle_parse_keybindings () {
     help_zle_keybindings['<Alt><arg>']="repeat next cmd/char <arg> times (<Alt>-<Alt>1<Alt>0a -> -10 times 'a')"
     help_zle_keybindings['<Alt>u']="make next word Uppercase"
     help_zle_keybindings['<Alt>l']="make next word lowercase"
-    help_zle_keybindings['<Ctrl>xd']="preview expansion under cursor"
+    help_zle_keybindings['<Ctrl>xG']="preview expansion under cursor"
     help_zle_keybindings['<Alt>q']="push current CL into background, freeing it. Restore on next CL"
     help_zle_keybindings['<Alt>.']="insert (and interate through) last word from prev CLs"
     help_zle_keybindings['<Alt>,']="complete word from newer history (consecutive hits)"
@@ -1239,7 +1253,7 @@ function help_zle_parse_keybindings () {
             #             ignores lines that are commentend out
             #             grabs first in '' or "" enclosed string with length between 1 and 6 characters
             elif [[ "$cline" == [^#]#(bind2maps[[:space:]](*)-s|bindkey|compdef -k)[[:space:]](*)(#b)(\"((?)(#c1,6))\"|\'((?)(#c1,6))\')(#B)(*)  ]]; then
-                #description prevously found ? description not more than 2 lines away ? keybinding not empty ?
+                #description previously found ? description not more than 2 lines away ? keybinding not empty ?
                 if [[ -n $lastkeybind_desc && $num_lines_elapsed -lt 2 && -n $match[1] ]]; then
                     #substitute keybinding string with something readable
                     k=${${${${${${${match[1]/\\e\^h/<Alt><BS>}/\\e\^\?/<Alt><BS>}/\\e\[5~/<PageUp>}/\\e\[6~/<PageDown>}//(\\e|\^\[)/<Alt>}//\^/<Ctrl>}/3~/<Alt><Del>}
@@ -1477,7 +1491,7 @@ bind2maps emacs viins       -- -s ' ' magic-space
 #k# Trigger menu-complete
 bind2maps emacs viins       -- -s '\ei' menu-complete  # menu completion via esc-i
 #k# Insert a timestamp on the command line (yyyy-mm-dd)
-bind2maps emacs viins       -- -s '\ed' insert-datestamp
+bind2maps emacs viins       -- -s '^xd' insert-datestamp
 #k# Insert last typed word
 bind2maps emacs viins       -- -s "\em" insert-last-typed-word
 #k# A smart shortcut for \kbd{fg<enter>}
@@ -1582,7 +1596,7 @@ function command_not_found_handler () {
 # history
 
 #v#
-HISTFILE=${ZDOTDIR:-${HOME}}/.zsh_history
+HISTFILE=${HISTFILE:-${ZDOTDIR:-${HOME}}/.zsh_history}
 isgrmlcd && HISTSIZE=500  || HISTSIZE=5000
 isgrmlcd && SAVEHIST=1000 || SAVEHIST=10000 # useful for setopt append_history
 
@@ -2063,7 +2077,7 @@ function grml_prompt_setup () {
     autoload -Uz vcs_info
     # The following autoload is disabled for now, since this setup includes a
     # static version of the ‘add-zsh-hook’ function above. It needs to be
-    # reenabled as soon as that static definition is removed again.
+    # re-enabled as soon as that static definition is removed again.
     #autoload -Uz add-zsh-hook
     add-zsh-hook precmd prompt_$1_precmd
 }
@@ -2518,7 +2532,7 @@ function grml_control_xterm_title () {
 
 # The following autoload is disabled for now, since this setup includes a
 # static version of the ‘add-zsh-hook’ function above. It needs to be
-# reenabled as soon as that static definition is removed again.
+# re-enabled as soon as that static definition is removed again.
 #zrcautoload add-zsh-hook || add-zsh-hook () { :; }
 if [[ $NOPRECMD -eq 0 ]]; then
     add-zsh-hook precmd grml_reset_screen_title
@@ -2691,22 +2705,24 @@ Enjoy your grml system with the zsh!$reset_color"
 # debian stuff
 if [[ -r /etc/debian_version ]] ; then
     if [[ -z "$GRML_NO_APT_ALIASES" ]]; then
-        #a3# Execute \kbd{apt-cache search}
-        alias acs='apt-cache search'
-        #a3# Execute \kbd{apt-cache show}
-        alias acsh='apt-cache show'
         #a3# Execute \kbd{apt-cache policy}
         alias acp='apt-cache policy'
         if check_com -c apt ; then
+          #a3# Execute \kbd{apt search}
+          alias acs='apt search'
+          #a3# Execute \kbd{apt show}
+          alias acsh='apt show'
           #a3# Execute \kbd{apt dist-upgrade}
           salias adg="apt dist-upgrade"
           #a3# Execute \kbd{apt upgrade}
           salias ag="apt upgrade"
           #a3# Execute \kbd{apt install}
           salias agi="apt install"
-          #a3# Execute \kbd{apt-get update}
+          #a3# Execute \kbd{apt update}
           salias au="apt update"
         else
+          alias acs='apt-cache search'
+          alias acsh='apt-cache show'
           salias adg="apt-get dist-upgrade"
           salias ag="apt-get upgrade"
           salias agi="apt-get install"
@@ -2844,7 +2860,7 @@ compdef _functions freload
 #      Module zstat is loaded by default in grml zshrc, no extra action needed for that.
 #
 #      Known bugs:
-#      If you happen to come accross a symlink that points to a destination on an other partition
+#      If you happen to come across a symlink that points to a destination on another partition
 #      with the same inode number, that will be marked as symlink loop though it is not.
 #      Two hints for this situation:
 #      I)  Play lottery the same day, as you seem to be rather lucky right now.
@@ -3255,7 +3271,7 @@ fi
 #f5# Backup \kbd{file_or_folder {\rm to} file_or_folder\_timestamp}
 function bk () {
     emulate -L zsh
-    local current_date=$(date -u "+%Y-%m-%dT%H:%M:%SZ")
+    local current_date=$(date -u "+%Y%m%dT%H%M%SZ")
     local clean keep move verbose result all to_bk
     setopt extended_glob
     keep=1
@@ -3312,14 +3328,14 @@ return 0;;
     elif (( clean > 0 )); then
         if (( $# > 0 )); then
             for to_bk in "$@"; do
-                rm $verbose -rf "${to_bk%/}"_[0-9](#c4,)-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])T([0-1][0-9]|2[0-3])(:[0-5][0-9])(#c2)Z
+                rm $verbose -rf "${to_bk%/}"_[0-9](#c8)T([0-1][0-9]|2[0-3])([0-5][0-9])(#c2)Z
                 (( result += $? ))
             done
         else
             if (( all > 0 )); then
-                rm $verbose -rf *_[0-9](#c4,)-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])T([0-1][0-9]|2[0-3])(:[0-5][0-9])(#c2)Z(D)
+                rm $verbose -rf *_[0-9](#c8)T([0-1][0-9]|2[0-3])([0-5][0-9])(#c2)Z(D)
             else
-                rm $verbose -rf *_[0-9](#c4,)-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])T([0-1][0-9]|2[0-3])(:[0-5][0-9])(#c2)Z
+                rm $verbose -rf *_[0-9](#c8)T([0-1][0-9]|2[0-3])([0-5][0-9])(#c2)Z
             fi
             (( result += $? ))
         fi
@@ -3327,7 +3343,7 @@ return 0;;
     return $result
 }
 
-#f5# cd to directoy and list files
+#f5# cd to directory and list files
 function cl () {
     emulate -L zsh
     cd $1 && ls -a
@@ -3344,7 +3360,7 @@ function cd () {
     fi
 }
 
-#f5# Create Directoy and \kbd{cd} to it
+#f5# Create Directory and \kbd{cd} to it
 function mkcd () {
     if (( ARGC != 1 )); then
         printf 'usage: mkcd <new-directory>\n'
@@ -3717,7 +3733,10 @@ if check_com -c hg ; then
 
 fi # end of check whether we have the 'hg'-executable
 
-# grml-small cleanups
+# disable bracketed paste mode for dumb terminals
+[[ "$TERM" == dumb ]] && unset zle_bracketed_paste
+
+# grml-small cleanups and workarounds
 
 # The following is used to remove zsh-config-items that do not work
 # in grml-small by default.
@@ -3726,6 +3745,8 @@ fi # end of check whether we have the 'hg'-executable
 # sources if it is there).
 
 if (( GRMLSMALL_SPECIFIC > 0 )) && isgrmlsmall ; then
+
+    # Clean up
 
     unset "abk[V]"
     unalias    'V'      &> /dev/null
@@ -3737,6 +3758,36 @@ if (( GRMLSMALL_SPECIFIC > 0 )) && isgrmlsmall ; then
     unfunction manzsh   &> /dev/null
     unfunction man2     &> /dev/null
 
+    # Workarounds
+
+    # See https://github.com/grml/grml/issues/56
+    if ! [[ -x ${commands[dig]} ]]; then
+        function dig_after_all () {
+            unfunction dig
+            unfunction _dig
+            autoload -Uz _dig
+            unfunction dig_after_all
+        }
+        function dig () {
+            if [[ -x ${commands[dig]} ]]; then
+                dig_after_all
+                command dig "$@"
+                return "$!"
+            fi
+            printf 'This installation does not include `dig'\'' for size reasons.\n'
+            printf 'Try `drill'\'' as a light weight alternative.\n'
+            return 0
+        }
+        function _dig () {
+            if [[ -x ${commands[dig]} ]]; then
+                dig_after_all
+                zle -M 'Found `dig'\'' installed. '
+            else
+                zle -M 'Try `drill'\'' instead of `dig'\''.'
+            fi
+        }
+        compdef _dig dig
+    fi
 fi
 
 zrclocal
@@ -3744,17 +3795,6 @@ zrclocal
 ## genrefcard.pl settings
 
 ### doc strings for external functions from files
-#m# f5 grml-wallpaper() Sets a wallpaper (try completion for possible values)
-
-### example: split functions-search 8,16,24,32
-#@# split functions-search 8
-
-## END OF FILE #################################################################
-# vim:filetype=zsh foldmethod=marker autoindent expandtab shiftwidth=4
-# Local variables:
-# mode: sh
-# End:
-# external functions from files
 #m# f5 grml-wallpaper() Sets a wallpaper (try completion for possible values)
 
 ### example: split functions-search 8,16,24,32
