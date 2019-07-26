@@ -46,11 +46,13 @@ export CCACHE_DIR=$HOME/.ccache
 export CCACHE_EXEC=/usr/bin/ccache
 export USE_CCACHE=1
 
+export SKIP_ABI_CHECKS=true
+
 export FLEX_EXEC=$HOME/android/flex-2.5.39
 
 export EDITOR=mcedit
 export GOPATH=$HOME/.go
-export PATH="$HOME/bin:$HOME/android/sdk/build-tools/25.0.2:$HOME/.gem/ruby/2.5.0/bin:$HOME/.local/bin:/usr/lib/ccache/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.gem/ruby/2.6.0/bin:$PATH"
 export ANDROID_HOME=/home/luca/android/sdk/
 export PROMPT_COMMAND='history -a'
 export JAVA_HOME=/usr/lib/jvm/java-8-openjdk
