@@ -6,28 +6,31 @@ import mmap
 ext4Magic = '\x53\xEF'
 ext4MagicOffset = 1080
 
-if len(sys.argv) < 3:
+if len(sys.argv) < 2:
     print("No I/O supplied")
     exit(1)
 
-def copyExt4Image(origin, dest):
+def copyExt4Image(origin, offset, size, dest):
     with open(origin, 'r') as input:
         with open(dest, 'w') as output:
             input.seek(offset - ext4MagicOffset)
-            output.write(input.read())
+            output.write(input.read(size + ext4MagicOffset))
 
-def findMagic(input):
+def findMagics(input):
+    magics = [0]
     with open(input, 'r+b') as f:
         mm = mmap.mmap(f.fileno(), 0)
-        return mm.find(ext4Magic, ext4MagicOffset)
+        while magics[-1] != -1:
+            magics.append(mm.find(ext4Magic, magics[-1] + ext4MagicOffset))
+    return magics
 
 systemimg = sys.argv[1]
-offset = findMagic(systemimg)
-if offset == ext4MagicOffset:
-    print('The given file is a proper ext4 image')
-elif offset != -1:
-    print('ext4 magic number found at byte %d' % offset)
-    print('Creating %s...' % sys.argv[2])
-    copyExt4Image(systemimg, sys.argv[2])
+offsets = findMagics(systemimg)
+if len(offsets[1:]) != 0:
+    for num, offset in enumerate(offsets[1:], start=1):
+        print('ext4 magic number found at byte %d' % offset)
+        name = "{}_part{}.img".format(systemimg, num)
+        print('Creating {}...'.format(name))
+        copyExt4Image(systemimg, offset, offsets[num + 1] - offset, name)
 else:
-    print("ext4 magic number not found")
+    print("Not ext4 images found")

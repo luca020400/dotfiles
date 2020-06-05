@@ -41,23 +41,31 @@ bindkey -M isearch . self-insert
 
 ## END OF FILE #################################################################
 
+function kpatch () {
+  patch=$1
+  shift
+  git send-email \
+    --cc-cmd="./scripts/get_maintainer.pl --norolestats $patch" \
+    $@ $patch
+}
+
 export CCACHE_COMPRESS=1
 export CCACHE_DIR=$HOME/.ccache
 export CCACHE_EXEC=/usr/bin/ccache
 export USE_CCACHE=1
 
-export SKIP_ABI_CHECKS=true
+export USE_THINLTO_CACHE=true
 
 export EDITOR=mcedit
 export GOPATH=$HOME/.go
 export PATH="$HOME/bin:$HOME/.gem/ruby/2.6.0/bin:$PATH"
 export ANDROID_HOME=/home/luca/android/sdk/
 export PROMPT_COMMAND='history -a'
-export JAVA_HOME=/usr/lib/jvm/java-8-openjdk
 
 alias clipboard='xclip -se c'
 alias nano='mcedit'
 alias pacman='yay'
+alias wget='wget -c'
 
 zstyle ':completion:*' rehash true
 
@@ -70,9 +78,6 @@ source $HOME/.zsh_custom/zsh-history-substring-search/zsh-history-substring-sear
 zmodload zsh/terminfo
 bindkey "$terminfo[kcuu1]" history-substring-search-up
 bindkey "$terminfo[kcud1]" history-substring-search-down
-
-# sh word split behaviour
-setopt shwordsplit
 
 # always check provided pattern
 unsetopt nomatch

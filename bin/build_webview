@@ -1,6 +1,6 @@
 #!/usr/bin/env zsh
 
-chromium_version="72.0.3626.105"
+chromium_version="77.0.3865.92"
 chromium_code=" 3626105"
 clean=0
 gsync=0

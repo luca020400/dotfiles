@@ -3,9 +3,7 @@
 set -e
 
 adb root
-sleep 3
 adb wait-for-device
-sleep 1
 rm -rf ~/ziptempdir 2> /dev/null
 mkdir -p ~/ziptempdir
 unzip $1 -d ~/ziptempdir 2> /dev/null

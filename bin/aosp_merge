@@ -6,7 +6,7 @@ NEWTAG="${1}"
 SQUASH="${2}"
 
 TOP="${ANDROID_BUILD_TOP}"
-MANIFEST="${TOP}/.repo/manifest.xml"
+MANIFEST="${TOP}/.repo/manifests/default.xml"
 BRANCH=$(grep "default revision" "${MANIFEST}" \
         | sed 's/^ *//g;s/<default revision=\"refs\/heads\///g;s/\"//g')
 STAGINGBRANCH="${BRANCH}-${NEWTAG}"

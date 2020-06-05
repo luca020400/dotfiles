@@ -4,10 +4,12 @@ images=(
 abl
 aop
 bluetooth
+boot
 cmnlib64
 cmnlib
 devcfg
 dsp
+dtbo
 fw_4j1ed
 fw_4u1ea
 hyp
@@ -16,7 +18,9 @@ LOGO
 modem
 qupfw
 storsec
+system
 tz
+vbmeta
 vendor
 xbl
 xbl_config
