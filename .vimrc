@@ -84,6 +84,9 @@ set expandtab
 " (useful for handling the permission-denied error)
 command! W execute 'w !sudo tee % > /dev/null' <bar> edit!
 
+" :Q alias to :q
+command Q q
+
 " Turn backup off, since most stuff is in SVN, git etc. anyway...
 set nobackup
 set nowb
