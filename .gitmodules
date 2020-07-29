@@ -10,3 +10,6 @@
 [submodule ".zsh_custom/zsh-syntax-highlighting"]
 	path = .zsh_custom/zsh-syntax-highlighting
 	url = git@github.com:zsh-users/zsh-syntax-highlighting.git
+[submodule ".vim/pack/vendor/start/nerdtree"]
+	path = .vim/pack/vendor/start/nerdtree
+	url = git@github.com:preservim/nerdtree.git
