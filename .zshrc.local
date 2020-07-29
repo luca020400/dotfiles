@@ -56,14 +56,13 @@ export USE_CCACHE=1
 
 export USE_THINLTO_CACHE=true
 
-export EDITOR=mcedit
+export EDITOR=vim
 export GOPATH=$HOME/.go
-export PATH="$HOME/bin:$HOME/.gem/ruby/2.6.0/bin:$PATH"
+export PATH="$HOME/bin:$HOME/.gem/ruby/2.7.0/bin:$PATH"
 export ANDROID_HOME=/home/luca/android/sdk/
 export PROMPT_COMMAND='history -a'
 
 alias clipboard='xclip -se c'
-alias nano='mcedit'
 alias pacman='yay'
 alias wget='wget -c'
 
