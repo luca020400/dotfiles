@@ -11,5 +11,6 @@ luca020400 Dot-Files
 
 ```bash
  cp -R dotfiles/bin $HOME/.
+ cp -R dotfiles/.vim* $HOME/.
  cp -R dotfiles/.zsh* $HOME/.
 ```
