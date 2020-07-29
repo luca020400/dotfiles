@@ -99,6 +99,9 @@ set noswapfile
 map <space> /
 map <C-space> ?
 
+" Allow cursor traverse to the previous, or following, line
+set whichwrap=b,s,<,>,[,]
+
 " Return to last edit position when opening files
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
 
