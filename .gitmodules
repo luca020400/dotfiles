@@ -13,3 +13,6 @@
 [submodule ".vim/pack/vendor/start/nerdtree"]
 	path = .vim/pack/vendor/start/nerdtree
 	url = git@github.com:preservim/nerdtree.git
+[submodule ".vim/pack/plugins/start/kotlin-vim"]
+	path = .vim/pack/plugins/start/kotlin-vim
+	url = git@github.com:udalov/kotlin-vim.git
