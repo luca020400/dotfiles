@@ -106,6 +106,9 @@ set statusline+=%#CursorColumns#
 set statusline+=%y
 set statusline+=\ Line:\ %l\ Column:\ %c
 
+set list
+set listchars=tab:»\ ,extends:›,precedes:‹,nbsp:·,trail:·
+
 " Close vim if the only window left open is a NERDTree
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
