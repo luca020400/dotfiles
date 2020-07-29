@@ -71,6 +71,9 @@ set notimeout ttimeout ttimeoutlen=200
 " Use <F11> to toggle between 'paste' and 'nopaste'
 set pastetoggle=<F11>
 
+" Allow using the system clipboard
+set clipboard^=unnamed,unnamedplus
+
 " Be smart when using tabs ;)
 set smarttab
 
