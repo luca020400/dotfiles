@@ -1,17 +1,12 @@
 #!/usr/bin/env python
 
-from __future__ import print_function
-
+import argparse
 import sys
-
-from subprocess import Popen, PIPE
-from multiprocessing import Event, Pool, Process, Queue
 import time
 
-try:
-    from Queue import Empty as Queue_Empty
-except ImportError:
-    from queue import Empty as Queue_Empty
+from multiprocessing import Event, Pool, Process, Queue
+from queue import Empty
+from subprocess import Popen, PIPE
 
 
 def run_subprocess(cmd):
@@ -28,14 +23,14 @@ def run_subprocess(cmd):
     return comm
 
 
-def get_commit_ids(depth):
-    cmd = "git log --no-merges --skip=1 --pretty=format:\"%%h\" -n %s" % depth
+def get_tags(tag_name):
+    cmd = "git tag -l %s" % tag_name
     comm = run_subprocess(cmd)
     return comm[0].strip("\n").split("\n")
 
 
-def get_total_changes(change_id):
-    cmd = "git diff %s --shortstat" % change_id
+def get_total_changes(tag_name):
+    cmd = "git diff %s --shortstat" % tag_name
     comm = run_subprocess(cmd)
     try:
         a, d = comm[0].split(",")[1:]
@@ -48,9 +43,9 @@ def get_total_changes(change_id):
     return total
 
 
-def worker(change_id):
-    tc = get_total_changes(change_id)
-    worker.q.put((change_id, tc))
+def worker(tag_name):
+    tc = get_total_changes(tag_name)
+    worker.q.put((tag_name, tc))
 
 
 def worker_init(q):
@@ -63,7 +58,7 @@ def background(q, e, s):
     while True:
         try:
             tn, tc = q.get(False)
-        except Queue_Empty:
+        except Empty:
             if e.is_set():
                 break
         else:
@@ -71,11 +66,11 @@ def background(q, e, s):
                 print("%s has %d lines changed" % (tn, tc))
             if best > tc:
                 best = tc
-                commit_id = tn
+                tag = tn
                 if not s:
                     print("%s is the new best match with %d lines changed" % (tn, tc))
     print("Best match")
-    print("Commit ID: %s" % commit_id)
+    print("TAG: %s" % tag)
     print("Lines changed: %d" % best)
 
 
@@ -86,16 +81,16 @@ def main():
                         metavar="N", help="number of jobs to run at once")
     parser.add_argument("-s", action="store_true", dest="silent", default=False,
                         help="reduce the verbosity of the output")
-    parser.add_argument("depth", metavar="<Depth>",
-                       help="How many commits we go deep")
+    parser.add_argument("tag_name", metavar="<Tag Name>",
+                       help="tag name to search for (can contain wildcards)")
     args = parser.parse_args()
 
-    commit_ids = get_commit_ids(args.depth)
-    if not commit_ids:
-        print("No commit ids to check. bailing.")
+    tags = get_tags(args.tag_name)
+    if not tags:
+        print("No tags to check. bailing.")
         sys.exit(1)
     if not args.silent:
-        print("number of commit ids to check: %d" % len(commit_ids))
+        print("number of tags to check: %d" % len(tags))
 
     queue = Queue()
     event = Event()
@@ -104,7 +99,7 @@ def main():
     b.start()
 
     pool = Pool(args.jobs, worker_init, [queue])
-    pool.map(worker, commit_ids)
+    pool.map(worker, tags)
 
     pool.close()
     pool.join()
