@@ -81,7 +81,6 @@ set smarttab
 " Do not change 'tabstop' from its default value of 8 with this setup.
 set shiftwidth=4
 set softtabstop=4
-set expandtab
 
 " :W sudo saves the file
 " (useful for handling the permission-denied error)
@@ -101,6 +100,9 @@ map <C-space> ?
 
 " Allow cursor traverse to the previous, or following, line
 set whichwrap=b,s,<,>,[,]
+
+" Disable line wrap
+set nowrap
 
 " Return to last edit position when opening files
 au BufReadPost * if line("'\"") > 1 && line("'\"") <= line("$") | exe "normal! g'\"" | endif
