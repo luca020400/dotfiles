@@ -41,30 +41,19 @@ bindkey -M isearch . self-insert
 
 ## END OF FILE #################################################################
 
-function kpatch () {
-  patch=$1
-  shift
-  git send-email \
-    --cc-cmd="./scripts/get_maintainer.pl --norolestats $patch" \
-    $@ $patch
-}
-
-export CCACHE_COMPRESS=1
-export CCACHE_DIR=$HOME/.ccache
-export CCACHE_EXEC=/usr/bin/ccache
-export USE_CCACHE=1
-
-export USE_THINLTO_CACHE=true
-
 export EDITOR=vim
 export GOPATH=$HOME/.go
 export PATH="$HOME/bin:$HOME/.gem/ruby/2.7.0/bin:$PATH"
-export ANDROID_HOME=/home/luca/android/sdk/
+export ANDROID_HOME=$HOME/android/sdk/
 export PROMPT_COMMAND='history -a'
 
-alias clipboard='xclip -se c'
 alias pacman='yay'
-alias wget='wget -c'
+
+# WSL
+if [ ! -z $WSL_DISTRO_NAME ]; then
+  alias adb='adb.exe'
+  alias fastboot='fastboot.exe'
+fi
 
 zstyle ':completion:*' rehash true
 
