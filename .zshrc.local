@@ -43,11 +43,12 @@ bindkey -M isearch . self-insert
 
 export EDITOR=vim
 export GOPATH=$HOME/.go
-export PATH="$HOME/bin:$HOME/.gem/ruby/2.7.0/bin:$PATH"
+export PATH="$HOME/bin:$PATH"
 export ANDROID_HOME=$HOME/android/sdk/
 export PROMPT_COMMAND='history -a'
 
 alias pacman='yay'
+alias gist='gh gist create'
 
 # WSL
 if [ ! -z $WSL_DISTRO_NAME ]; then
