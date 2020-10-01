@@ -124,3 +124,5 @@ set listchars=tab:»\ ,extends:›,precedes:‹,nbsp:·,trail:·
 autocmd bufenter * if (winnr("$") == 1 && exists("b:NERDTree") && b:NERDTree.isTabTree()) | q | endif
 
 packload
+
+set rtp+=~/.tabnine-vim
