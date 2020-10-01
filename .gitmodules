@@ -13,6 +13,6 @@
 [submodule ".vim/pack/vendor/start/nerdtree"]
 	path = .vim/pack/vendor/start/nerdtree
 	url = git@github.com:preservim/nerdtree.git
-[submodule ".vim/pack/default/start/vim-polyglot"]
-	path = .vim/pack/default/start/vim-polyglot
-	url = git@github.com:sheerun/vim-polyglot.git
+[submodule ".vim/pack/plugins/opt/vim-polyglot"]
+	path = .vim/pack/plugins/opt/vim-polyglot
+	url = https://github.com/sheerun/vim-polyglot
