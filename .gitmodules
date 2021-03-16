@@ -16,6 +16,3 @@
 [submodule ".vim/pack/plugins/opt/vim-polyglot"]
 	path = .vim/pack/plugins/opt/vim-polyglot
 	url = https://github.com/sheerun/vim-polyglot
-[submodule ".tabnine-vim"]
-	path = .tabnine-vim
-	url = https://github.com/zxqfl/tabnine-vim
