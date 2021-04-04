@@ -50,12 +50,6 @@ export PROMPT_COMMAND='history -a'
 alias pacman='yay'
 alias gist='gh gist create'
 
-# WSL
-if [ ! -z $WSL_DISTRO_NAME ]; then
-  alias adb='adb.exe'
-  alias fastboot='fastboot.exe'
-fi
-
 zstyle ':completion:*' rehash true
 
 source $HOME/.zsh_custom/zsh-completions/zsh-completions.plugin.zsh
