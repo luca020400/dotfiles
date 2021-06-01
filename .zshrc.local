@@ -47,9 +47,6 @@ export PATH="$HOME/bin:$PATH"
 export ANDROID_HOME=$HOME/android/sdk/
 export PROMPT_COMMAND='history -a'
 
-alias pacman='yay'
-alias gist='gh gist create'
-
 zstyle ':completion:*' rehash true
 
 source $HOME/.zsh_custom/zsh-completions/zsh-completions.plugin.zsh
