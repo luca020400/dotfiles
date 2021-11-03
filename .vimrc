@@ -74,8 +74,8 @@ set pastetoggle=<F11>
 " Allow using the system clipboard
 set clipboard^=unnamed,unnamedplus
 
-" Be smart when using tabs ;)
-set smarttab
+" Don't be smart when using tabs ;)
+set expandtab
 
 " Indentation settings for using 4 spaces instead of tabs.
 " Do not change 'tabstop' from its default value of 8 with this setup.
